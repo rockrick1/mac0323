@@ -10,19 +10,11 @@ public class Permutation {
         randq = new RandomizedQueue<String>();
 
         // Le o arquivo de entrada e constroi a fila/pilha
-        String bepis;
+        String s;
         while (!StdIn.isEmpty()) {
-            bepis = StdIn.readString();
-            randq.enqueue(bepis);
+            s = StdIn.readString();
+            randq.enqueue(s);
         }
-
-        Iterator<String> it = randq.iterator();
-
-        // // printa
-        // while (it.hasNext()) {
-        //     String valor = it.next();
-        //     StdOut.println(valor);
-        // }
 
         // remove k elementos
         for (int i = 0; i < k; i++) {

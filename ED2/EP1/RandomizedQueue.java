@@ -15,22 +15,22 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         Node prev;
     }
 
-    public RandomizedQueue() {
+    public RandomizedQueue() { // inicializa a randQ
         first = null;
         last = null;
         current = null;
         n = 0;
     }
 
-    public boolean isEmpty() { // is the queue empty?
+    public boolean isEmpty() { // verifica se esta vaiza
         return n == 0;
     }
 
-    public int size() { // return the number of items on the queue
+    public int size() { // retorna o numero de itens
         return n;
     }
 
-    public void enqueue(Item item) { // adds item on the start
+    public void enqueue(Item item) { // adiciona um item no inicio da randQ
         if (item == null) { // excessao para argumento null
             throw new java.lang.IllegalArgumentException();
         }
@@ -46,13 +46,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
 
-    public Item dequeue() {
+    public Item dequeue() { // remove um item aleatorio da randQ
         if (n <= 0) { // excessao para fila vazia
             throw new java.util.NoSuchElementException();
         }
         int rand = StdRandom.uniform(n);
         Item ret;
 
+        // vai ate o item a ser removido
         current = first;
         for (int i = 0; i < rand; i++){
             current = current.next;
@@ -79,7 +80,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
 
-    public Item sample() {
+    public Item sample() { // retorna um item aleatorio, sem remove-lo da randQ
         if (n <= 0) { // excessao para fila vazia
             throw new java.util.NoSuchElementException();
         }
@@ -103,12 +104,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
 
-    public Iterator<Item> iterator() {
+    public Iterator<Item> iterator() { // instancia um iterador independente
         return new RandomizedIterator();
     }
 
 
     private class RandomizedIterator implements Iterator<Item> {
+        // percorre a randQ de inicio a fim
         private Node current = first;
 
         public boolean hasNext() {
@@ -117,7 +119,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         public Item next() {
             // excessão se iterador tentar ir além do final da fila
             if (!hasNext()) {
-                StdOut.println(current == last);
                 throw new java.util.NoSuchElementException();
             }
             Item item = current.item;

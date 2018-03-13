@@ -13,22 +13,22 @@ public class Deque<Item> implements Iterable<Item> {
         Node prev;
     }
 
-    public Deque() { // construct an empty deque
+    public Deque() { // inicia uma Deque
         first = null;
         last = null;
         current = null;
         n = 0;
     }
 
-    public boolean isEmpty() { // is the deque empty?
+    public boolean isEmpty() { // checa se está vazia
         return n == 0;
     }
 
-    public int size() { // return the number of items on the deque
+    public int size() { // tamanho da Deque
         return n;
     }
 
-    public void addFirst(Item item) { // add the item to the front
+    public void addFirst(Item item) { // adiciona item no inicio
         if (item == null) { // excessao para argumento null
             throw new java.lang.IllegalArgumentException();
         }
@@ -43,7 +43,7 @@ public class Deque<Item> implements Iterable<Item> {
         n++;
     }
 
-    public void addLast(Item item) { // add the item to the end
+    public void addLast(Item item) { // adiciona item no final
         if (item == null) { // excessao para argumento null
             throw new java.lang.IllegalArgumentException();
         }
@@ -61,7 +61,7 @@ public class Deque<Item> implements Iterable<Item> {
         n++;
     }
 
-    public Item removeFirst() { // remove and return the item from the front
+    public Item removeFirst() { // remove um item no inicio
         if (n <= 0) { // excessao para fila vazia
             throw new java.util.NoSuchElementException();
         }
@@ -73,22 +73,27 @@ public class Deque<Item> implements Iterable<Item> {
         return ret;
     }
 
-    public Item removeLast() { // remove and return the item from the end
+    public Item removeLast() { // remove um item no final
         if (n <= 0) { // excessao para fila vazia
             throw new java.util.NoSuchElementException();
         }
         Item ret = last.item;
-        last = last.prev;
-        last.next = null;
+        if (n > 1) {
+            last = last.prev;
+            last.next = null;
+        }
+        else // n == 1
+            last = null;
         n--;
         return ret;
     }
 
-    public Iterator<Item> iterator() { // return an iterator over items in order from front to end
+    public Iterator<Item> iterator() { // retorna um iterador independente
         return new DequeIterator();
     }
 
     private class DequeIterator implements Iterator<Item> {
+        // iterador que percorre a Deque de inicio a fim
         private Node current = first;
 
         public boolean hasNext() {
@@ -96,7 +101,7 @@ public class Deque<Item> implements Iterable<Item> {
         }
         public Item next() {
              // excessão se iterador tentar ir além do final da fila
-            if (!this.hasNext()) {
+            if (!hasNext()) {
                 throw new java.util.NoSuchElementException();
             }
             Item item = current.item;
@@ -112,8 +117,8 @@ public class Deque<Item> implements Iterable<Item> {
     public static void main(String[] args) { // testing
         Deque<Integer> deq = null;
         deq = new Deque<Integer>();
-        // preenche com valores de 10 a 19
-        for (int i=10; i < 20; i++) {
+        // preenche com valores de 10 a 14
+        for (int i=10; i < 15; i++) {
             deq.addFirst(i);
         }
         // printa valores
@@ -122,16 +127,16 @@ public class Deque<Item> implements Iterable<Item> {
             Integer valor = it.next();
             StdOut.println("Item " + valor);
         }
-        // remove os dois ultimos e o primeiro, e printa denovo
-        deq.removeLast();
-        deq.removeFirst();
-        deq.removeLast();
-        StdOut.println("Size: " + deq.size());
+
+        for (int i = 0; i < 4; i++)
+            StdOut.println("removeu " + deq.removeLast());
+        // printa again
         it = deq.iterator();
         while (it.hasNext()) {
             Integer valor = it.next();
             StdOut.println("Item " + valor);
         }
+
         // Deq de Strings
         Deque<String> deqS = new Deque<String>();
         deqS.addLast("Como");
@@ -139,7 +144,11 @@ public class Deque<Item> implements Iterable<Item> {
         deqS.addLast("bom");
         deqS.addLast("estudar");
         deqS.addLast("MAC0323!");
-        StdOut.println(deqS.size());
+        deqS.addLast("Esse");
+        deqS.addLast("monitor");
+        deqS.addLast("é");
+        deqS.addLast("muito");
+        deqS.addLast("gato");
         for (String s: deqS) {
             StdOut.print(s + " ");
         }
