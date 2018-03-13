@@ -1,6 +1,6 @@
 import edu.princeton.cs.algs4.StdOut;
-import java.util.Iterator;
 import edu.princeton.cs.algs4.StdRandom;
+import java.util.Iterator;
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
     private Node first;
@@ -54,17 +54,19 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         Item ret;
 
         current = first;
-        for (int i = 0; i < rand; i++)
+        for (int i = 0; i < rand; i++){
             current = current.next;
+        }
         ret = current.item;
+
         if (n > 1) {
             if (current == last) { // define o novo last, caso o antigo seja escolhido
-                last = current.prev;
-                last.next = null;
+                this.last = current.prev;
+                this.last.next = null;
             }
             else if (current == first) { // define o novo first, caso o antigo seja escolhido
-                first = current.next;
-                first.prev = null;
+                this.first = current.next;
+                this.first.prev = null;
             }
             // atualiza o next e prev dos elementos que cercam o que foi removido
             else {
@@ -72,7 +74,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
                 current.next.prev = current.prev;
             }
         }
-        current = null;
         n--;
         return ret;
     }
@@ -115,11 +116,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
         public Item next() {
             // excessão se iterador tentar ir além do final da fila
-            if (!this.hasNext()) {
-                StdOut.println(current == first);
+            if (!hasNext()) {
+                StdOut.println(current == last);
                 throw new java.util.NoSuchElementException();
             }
-            StdOut.println("hewoooo??");
             Item item = current.item;
             current = current.next;
             return item;
@@ -133,13 +133,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public static void main(String[] args) { // testing b o y s
         RandomizedQueue<Integer> randq = null;
         randq = new RandomizedQueue<Integer>();
-        for (int i=19; i >= 0; i--) {
+        // preenche com numeros
+        for (int i=9; i >= 0; i--) {
             randq.enqueue(i);
         }
-        StdOut.println("SAMPLES:\n");
+
+        // vai tirando numeros aleatorios e imprimindo
         Iterator<Integer> it;
-        for (int i = 0; i<19; i++) {
-            StdOut.print(randq.dequeue()+" removed\n");
+        for (int i = 0; i<9; i++) {
+            StdOut.print(randq.dequeue()+" removed");
             it = randq.iterator();
             while (it.hasNext()) {
                 Integer valor = it.next();
