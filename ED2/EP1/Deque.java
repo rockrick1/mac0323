@@ -112,11 +112,11 @@ public class Deque<Item> implements Iterable<Item> {
     public static void main(String[] args) { // testing
         Deque<Integer> deq = null;
         deq = new Deque<Integer>();
+        // preenche com valores de 10 a 19
         for (int i=10; i < 20; i++) {
-            deq.removeLast();
-            deq.addFirst(null);
+            deq.addFirst(i);
         }
-        // printa valores de 10 a 19
+        // printa valores
         Iterator<Integer> it = deq.iterator();
         while (it.hasNext()) {
             Integer valor = it.next();

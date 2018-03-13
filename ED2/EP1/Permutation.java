@@ -18,16 +18,15 @@ public class Permutation {
 
         Iterator<String> it = randq.iterator();
 
-        // printa
-        while (it.hasNext()) {
-            String valor = it.next();
-            StdOut.println(valor);
-        }
-        StdOut.println();
+        // // printa
+        // while (it.hasNext()) {
+        //     String valor = it.next();
+        //     StdOut.println(valor);
+        // }
+
         // remove k elementos
         for (int i = 0; i < k; i++) {
             StdOut.println(randq.dequeue());
-
         }
     }
 }
