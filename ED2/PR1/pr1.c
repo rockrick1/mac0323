@@ -15,11 +15,24 @@ void write(char **words, int spaces[], int word_count) {
 }
 
 
+int getExcess(int *word_sizes, int c, int n) {
+	int N, i;
+	N = c;
+	for (i = 0; i < n; i++)
+		N -= word_sizes[i];
+	N -= n-1;
+	N /= n-1;
+	printf("excess:%d\n", N);
+	return N;
+}
+
+
 void **readFile(char *filename, int col) {
 	int i, j, k, cur_line, word_count, excess;
 	char c;
     char prev;
-	char buf[15];
+	char buf[30];
+	int *word_sizes;
     int *spaces;
 	int max_words;
 	char **words; /* buffer para as linhas */
@@ -36,9 +49,11 @@ void **readFile(char *filename, int col) {
 	max_words = 40; /* maximo de palavras numa linha */
 
 	spaces = malloc(col*sizeof(int));
+	word_sizes = malloc(max_words*sizeof(int));
 	words = malloc(sizeof(char**));
 	for (i = 0; i < max_words; i++){
-		words[i] = malloc(15*sizeof(char));
+		word_sizes[i] = 0;
+		words[i] = malloc(30*sizeof(char));
 		strcpy(words[i], "");
 	}
 
@@ -53,22 +68,22 @@ void **readFile(char *filename, int col) {
 		c = getc(file);
         if (c != ' ' && c != '\n') {
             buf[i] = c;
+			word_sizes[word_count]++;
 			i++;
         }
         else {
 			buf[i] = '\0'; /* fecha o buffer como string */
-			strcpy(words[4], "aaaa");
-			printf("%s\n", words[4]);
+			printf("%d\n", word_count);
 			strcpy(words[word_count], buf);
-			printf("kek\n");
             word_count++;
 			buf[0] = '\0'; /* reseta o buffer */
 			i = 0;
 
             if (j > col) { /* se ultrapassou o limite de colunas */
-                excess = j - col; /* o quanto excedeu o limite */
+				word_sizes[0] = word_sizes[word_count]; /* salva o tamanho da ultima? */
+                excess = getExcess(word_sizes, col, word_count - 1); /* o quanto excedeu o limite */
                 for (k = 0; k < excess; k++) {
-                    spaces[(word_count - k - 2) % (word_count - 2)]++;
+                    spaces[(word_count - k - 2) % (word_count - 2)]++; /* errado */
                 }
 				spaces[word_count - 1] = 0;
 
@@ -78,8 +93,10 @@ void **readFile(char *filename, int col) {
 				/* reseta td */
 				for (k = 0; k < col; k++)
                 	spaces[k] = 1;
-				for (k = 0; k < word_count; k++)
+				for (k = 0; k < word_count; k++) {
+					word_sizes[k] = 0;
 					strcpy(words[k], "");
+				}
 				j = 0;
                 word_count = 0;
 				cur_line++;
