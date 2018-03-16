@@ -30,9 +30,14 @@ que lidar com remoção de itens, tanto aleatórios quanto escolhido, dessas fil
  *  to the items (in the underlying array or linked list).
  *****************************************************************************/
 
-Randomized Queue:   ~  _____  bytes
+Randomized Queue:   ~  ((3*n) - 2)*(tamanho do item)  bytes
 
-Deque:              ~  _____  bytes
+Deque:              ~  ((3*n) - 2)*(tamanho do item)  bytes
+
+Onde n é o número de nós usados na estrutura.
+
+Cada nó possui um item e duas referencias para outro nó -> 3*n
+Dois nós não terão uma das referências (first e last) -> -2
 
 
 
