@@ -39,41 +39,48 @@ void **readFile(char *filename, int col) {
 	words = malloc(sizeof(char**));
 	for (i = 0; i < max_words; i++){
 		words[i] = malloc(15*sizeof(char));
+		strcpy(words[i], "");
 	}
 
 	prev = '\0';
     cur_line = 0;
 	word_count = 0;
+	for (k = 0; k < col; k++)
+		spaces[k] = 1;
 
 
-	for (i = j = 0; c != EOF; i++, j++) {
+	for (i = j = 0; c != EOF; j++) {
 		c = getc(file);
         if (c != ' ' && c != '\n') {
             buf[i] = c;
+			i++;
         }
         else {
 			buf[i] = '\0'; /* fecha o buffer como string */
-			printf("%d\n", word_count);
-			printf("kek\n");
+			strcpy(words[4], "aaaa");
+			printf("%s\n", words[4]);
 			strcpy(words[word_count], buf);
-			printf("%s\n", words[word_count]);
+			printf("kek\n");
             word_count++;
 			buf[0] = '\0'; /* reseta o buffer */
-			i = -1; /* i = 0 na prox iteração */
+			i = 0;
 
-            if (j >= col) { /* se ultrapassou o limite de colunas */
+            if (j > col) { /* se ultrapassou o limite de colunas */
                 excess = j - col; /* o quanto excedeu o limite */
-                j = 0;
                 for (k = 0; k < excess; k++) {
                     spaces[(word_count - k - 2) % (word_count - 2)]++;
                 }
 				spaces[word_count - 1] = 0;
+
 				/* escreve as parada */
                 write(words, spaces, word_count);
 
 				/* reseta td */
-				for (k = 0; k < word_count - 2; k++)
+				for (k = 0; k < col; k++)
                 	spaces[k] = 1;
+				for (k = 0; k < word_count; k++)
+					strcpy(words[k], "");
+				j = 0;
                 word_count = 0;
 				cur_line++;
 
