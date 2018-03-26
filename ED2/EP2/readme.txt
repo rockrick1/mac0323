@@ -1,17 +1,17 @@
 /******************************************************************************
- *  Name:     
- *  NetID:    
- *  Precept:  
+ *  Name:     Henrique Cerquinho
+ *  NetID:    9793700
+ *  Precept:  MAC0323
  *
  *  Partner Name:    N/A
  *  Partner NetID:   N/A
  *  Partner Precept: N/A
- * 
- *  Operating system:
- *  Compiler:
- *  Text editor / IDE:
  *
- *  Have you taken (part of) this course before:
+ *  Operating system: Ubuntu 16.04 LTS
+ *  Compiler: javac
+ *  Text editor / IDE: Atom
+ *
+ *  Have you taken (part of) this course before: parte
  *  Have you taken (part of) the Coursera course Algorithm, Part I:
  *
  *  Hours to complete assignment (optional):
@@ -25,7 +25,11 @@ Programming Assignment 1: Percolation
  *  Describe how you implemented Percolation.java. How did you check
  *  whether the system percolates?
  *****************************************************************************/
-
+Usando a WQUF, fui olhando casa por casa e comparando com suas 4 vizinhas,
+e adicionando elas no mesmo grupo da WQUF caso fossem ambas abertas ou
+ambas fechadas. No final, comparei todas as casas da borda de cima com todas
+da borda de baixo duas a duas, e se estivessem no mesmo grupo do WQUF e fossem
+abertas, o sistema percolava.
 
 
 /******************************************************************************
@@ -40,32 +44,30 @@ Programming Assignment 1: Percolation
  *****************************************************************************/
 
 (keep T constant)
+T = 20
 
  n          time (seconds)
 ------------------------------
-...
-...
-...
-...
-...
-...
+20              0.215
+40              5.886
+50              17.553
+60              43.233
+80              176.78
 
 
 (keep n constant)
+n = 30
 
  T          time (seconds)
 ------------------------------
-...
-...
-...
-...
-...
-...
-...
-
+10              0.685
+20              1.351
+40              2.666
+80              5.104
+480             31.6
 
 /******************************************************************************
- *  Using the empirical data from the above two tables, give a formula 
+ *  Using the empirical data from the above two tables, give a formula
  *  (using tilde notation) for the running time (in seconds) of
  *  PercolationStats.java as function of both n and T, such as
  *
@@ -77,7 +79,8 @@ Programming Assignment 1: Percolation
  *
  *****************************************************************************/
 
-QuickFindUF running time (in seconds) as a function of n and T:  ~ 
+QuickFindUF running time (in seconds) as a function of n and T:
+~
 
 
 /******************************************************************************
@@ -85,33 +88,38 @@ QuickFindUF running time (in seconds) as a function of n and T:  ~
  *  (instead of QuickFindUF).
  *****************************************************************************/
 
-(keep T constant)
+ (keep T constant)
+ T = 50
 
- n         time (seconds)
-------------------------------
-...
-...
-...
-...
-...
+  n          time (seconds)
+ ------------------------------
+ 30              0.72
+ 40              2.063
+ 50              5.504
+ 60              11.972
+ 70              23.397
+ 100             101.72
 
 
 (keep n constant)
+n = 40
 
  T          time (seconds)
 ------------------------------
-...
-...
-...
-...
-...
+10              0.57
+20              0.897
+40              1.676
+80              3.359
+160             6.458
+640             24.779
 
 
-WeightedQuickUnionUF running time (in seconds) as a function of n and T:  ~ 
+WeightedQuickUnionUF running time (in seconds) as a function of n and T:
+~
 
 
 
- 
+
 
 /**********************************************************************
  *  How much memory (in bytes) does a Percolation object (which uses
@@ -125,9 +133,10 @@ WeightedQuickUnionUF running time (in seconds) as a function of n and T:  ~
 /******************************************************************************
  *  Known bugs / limitations.
  *****************************************************************************/
-
-
-
+Certamente uma limitação relativamente grande é que, para escolher as casas
+aleatoriamente nos trials, são usados apenas numeros aleatorios, e quando uma
+casa que ja está aberta é escolhida, apenas ressorteamos os números, perdendo
+tempo incalculável devido ao uso de numeros aleatórios.
 
 /******************************************************************************
  *  Describe whatever help (if any) that you received.
@@ -135,17 +144,17 @@ WeightedQuickUnionUF running time (in seconds) as a function of n and T:  ~
  *  include any help from people (including course staff, lab TAs,
  *  classmates, and friends) and attribute them by name.
  *****************************************************************************/
-
-
-/******************************************************************************
- *  Describe any serious problems you encountered.                    
- *****************************************************************************/
-
-
-
+---
 
 /******************************************************************************
- *  List any other comments here. Feel free to provide any feedback   
- *  on how much you learned from doing the assignment, and whether    
- *  you enjoyed doing it.                                             
+ *  Describe any serious problems you encountered.
  *****************************************************************************/
+O problema dos numeros aleatórios descrito acima
+
+/******************************************************************************
+ *  List any other comments here. Feel free to provide any feedback
+ *  on how much you learned from doing the assignment, and whether
+ *  you enjoyed doing it.
+ *****************************************************************************/
+Achei interessante ver como imagens em baixa resolução funcionam com o esquema
+da percolação.
