@@ -9,6 +9,7 @@ public class PercolationStats {
     // vetor com o numero de casas abertas no final de cada trial
     private int[] thresholds;
     private int t; // a ser usados nos intervalos de confiança
+    private int n;
 
     // perform independent trials on an n-by-n grid
     public PercolationStats(int n, int trials) {
@@ -20,6 +21,7 @@ public class PercolationStats {
         int i, j, opens;
         thresholds = new int[trials];
         t = trials;
+        this.n = n;
 
         // Executa T testes
         for (int k = 0; k < trials; k++) {
@@ -27,10 +29,12 @@ public class PercolationStats {
             opens = 0;
             while (!perc.percolates()) {
                 // Enquanto não sortear uma posição fechada, sorteia denovo
-                while (perc.isOpen(i = StdRandom.uniform(n), j= StdRandom.uniform(n)))
-                    continue;
-                perc.open(i, j);
-                opens++;
+                i = StdRandom.uniform(n);
+                j = StdRandom.uniform(n);
+                if (!perc.isOpen(i,j)) {
+                    perc.open(i, j);
+                    opens++;
+                }
             }
             thresholds[k] = opens;
         }
@@ -38,12 +42,12 @@ public class PercolationStats {
 
     // sample mean of percolation threshold
     public double mean() {
-        return StdStats.mean(thresholds);
+        return StdStats.mean(thresholds) / (n*n);
     }
 
     // sample standard deviation of percolation threshold
     public double stddev() {
-        return StdStats.stddev(thresholds);
+        return StdStats.stddev(thresholds) / (n*n);
     }
 
     // low endpoint of 95% confidence interval
