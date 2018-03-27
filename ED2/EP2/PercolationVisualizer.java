@@ -20,6 +20,7 @@ import java.awt.Font;
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.StdOut;
 
 public class PercolationVisualizer {
 
@@ -77,6 +78,7 @@ public class PercolationVisualizer {
             int col = in.readInt();
             percolation.open(row, col);
             draw(percolation, n);
+            // StdOut.println(percolation.wquf.count());
             StdDraw.show();
             StdDraw.pause(DELAY);
         }
