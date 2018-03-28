@@ -1,12 +1,12 @@
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.WeightedQuickUnionUF;
+import edu.princeton.cs.algs4.QuickUnionUF;
 
 public class Percolation {
     private int n;
     private boolean[][] grid; // true se aberto, false se cheio
-    public WeightedQuickUnionUF wquf;
+    public QuickUnionUF wquf;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int size) {
@@ -17,7 +17,7 @@ public class Percolation {
         // faremos a wquf com duas posições a mais, que representam as bordas
         // superior e inferior, para checar a percolação
         n = size;
-        wquf = new WeightedQuickUnionUF(n*n + 2);
+        wquf = new QuickUnionUF(n*n + 2);
         grid = new boolean[n][n];
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)

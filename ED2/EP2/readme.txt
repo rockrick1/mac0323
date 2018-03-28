@@ -25,11 +25,13 @@ Programming Assignment 1: Percolation
  *  Describe how you implemented Percolation.java. How did you check
  *  whether the system percolates?
  *****************************************************************************/
-Usando a WQUF, fui olhando casa por casa e comparando com suas 4 vizinhas,
-e adicionando elas no mesmo grupo da WQUF caso fossem ambas abertas ou
-ambas fechadas. No final, comparei todas as casas da borda de cima com todas
-da borda de baixo duas a duas, e se estivessem no mesmo grupo do WQUF e fossem
-abertas, o sistema percolava.
+Usando a WQUF, sempre que open() era chamada, eu checava se as casas vizinhas
+(nos 4 lados) já estavam abertas. Caso estivessem, juntava a posição a ser
+aberta no grupo da vizinha, na wquf. Além disso, usei duas casas virtuais para
+representar as bordas superior e inferior, onde todas as casas abertas da borda
+superior eram conectadas à sua casa virtual, assim como as inferiores, na casa
+virtual inferior. Finalmente, só checava se as duas casas virtuais estavam no
+mesmo grupo da wquf para checar se percolava.
 
 
 /******************************************************************************
@@ -44,27 +46,28 @@ abertas, o sistema percolava.
  *****************************************************************************/
 
 (keep T constant)
-T = 20
+T = 10000
 
  n          time (seconds)
 ------------------------------
-20              0.215
-40              5.886
-50              17.553
-60              43.233
-80              176.78
+20              0.279
+40              0.857
+80              3.301
+160             13.878
+200             21.925
 
 
 (keep n constant)
-n = 30
+n = 100
 
  T          time (seconds)
 ------------------------------
-10              0.685
-20              1.351
-40              2.666
-80              5.104
-480             31.6
+400             0.276
+800             0.464
+1600            0.861
+16000           8.547
+40000           21.32
+
 
 /******************************************************************************
  *  Using the empirical data from the above two tables, give a formula
@@ -82,44 +85,37 @@ n = 30
 QuickFindUF running time (in seconds) as a function of n and T:
 ~
 
-
 /******************************************************************************
  *  Repeat the previous two questions, but using WeightedQuickUnionUF
  *  (instead of QuickFindUF).
  *****************************************************************************/
 
  (keep T constant)
- T = 50
+ T = 10000
 
   n          time (seconds)
  ------------------------------
- 30              0.72
- 40              2.063
- 50              5.504
- 60              11.972
- 70              23.397
- 100             101.72
+ 20              0.279
+ 40              1.102
+ 80              5.279
+ 120             14.759
+ 160             30.434
 
 
 (keep n constant)
-n = 40
+n = 100
 
  T          time (seconds)
 ------------------------------
-10              0.57
-20              0.897
-40              1.676
-80              3.359
-160             6.458
-640             24.779
+200             0.207
+400             0.394
+800             0.751
+16000           14.337
+32000           28.612
 
 
 WeightedQuickUnionUF running time (in seconds) as a function of n and T:
 ~
-
-
-
-
 
 /**********************************************************************
  *  How much memory (in bytes) does a Percolation object (which uses
