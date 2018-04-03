@@ -45,7 +45,11 @@ public class Board {
         }
         return ret;
     }
-    public int manhattan()                 // sum of Manhattan distances between tiles and goal
+
+    // sum of Manhattan distances between tiles and goal
+    public int manhattan() {
+
+    }
 
     // is this board the goal board?
     // temporario!!!
@@ -54,7 +58,10 @@ public class Board {
         return false;
     }
 
-    public boolean equals(Object y)        // does this board equal y?
+    public boolean equals(Object y) {
+        return this == y; // ????
+    }
+
     public Iterable<Board> neighbors()     // all neighboring boards
     public boolean isSolvable()            // is this board solvable?
 
