@@ -11,7 +11,6 @@ public class Percolation {
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int size) {
         if (size <= 0) {
-            StdOut.println("ooo");
             throw new java.lang.IllegalArgumentException();
         }
         // faremos a wquf com duas posições a mais, que representam as bordas
