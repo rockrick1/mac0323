@@ -86,21 +86,33 @@ public class Board {
     // função adaptada do paper fornecido no FAQ de Princeton
     // http://cseweb.ucsd.edu/~ccalabro/essays/15_puzzle.pdf
     private int inversions() {
-        int k = 0, i = 0, temp;
-        Board b = new Board(this.board); // board auxiliar
-        while(i < n*n) {
-            if (i+1 != tileAt(i%n, i/n) && tileAt(i%n, i/n) != 0) {
-                // guarda o numero que esta na casa errada
-                temp = b.board[i%n][i/n];
-                // coloca o numero certo
-                b.board[i%n][i/n] = i + 1;
-                // vai para a casa que devia estar o numero gaurdado
-                i = temp - 1;
-                k = 1 - k;
+        int k = 0; // numero de inversoes
+        int cur, comp;
+
+        for (int i = 0; i < n*n; i++) {
+            cur = tileAt(i/n,i%n);
+            for (int p = i; p < n*n; p++) {
+                comp = tileAt(p/n,p%n);
+                if (cur > comp && cur != 0 && comp != 0) {
+                    StdOut.print("ble "+cur + " ");
+                    StdOut.println(comp);
+                    k++;
+                }
             }
-            else
-                i++;
         }
+        // while(i < n*n) {
+        //     if (i+1 != tileAt(i%n, i/n) && tileAt(i%n, i/n) != 0) {
+        //         // guarda o numero que esta na casa errada
+        //         temp = b.board[i%n][i/n];
+        //         // coloca o numero certo
+        //         b.board[i%n][i/n] = i + 1;
+        //         // vai para a casa que devia estar o numero gaurdado
+        //         i = temp - 1;
+        //         k = 1 - k;
+        //     }
+        //     else
+        //         i++;
+        // }
         StdOut.println(k);
         return k;
     }
@@ -111,9 +123,17 @@ public class Board {
 
     public boolean isSolvable() {
         if ((n % 2) != 0)
-            return inversions() == 0; // se for par, é possivel resolver
+            return inversions() % 2 == 0; // se for par, é possivel resolver
         else {
-            return false;
+            int zero_row = -1;
+            boolean stop = false;
+            // encontra a linha que a peça vazia se encontra
+            for (int i = 0; i < n && zero_row == -1; i++)
+                for (int j = 0; j < n && zero_row == -1; j++)
+                    if (tileAt(i, j) == 0)
+                        zero_row = i;
+            StdOut.println("z: "+zero_row);
+            return (inversions() + zero_row) % 2 == 1;
         }
     }
 
