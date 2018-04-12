@@ -3,7 +3,7 @@ import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Stopwatch;
 
 public class Board {
-    private int[][] board;
+    public int[][] board;
     private int n;
 
     // create a board from an n-by-n array of tiles
@@ -82,17 +82,38 @@ public class Board {
         return this.equals(y);
     }
 
-    // retorna o numero de inversões no tabuleiro
+    // retorna 1 caso o numero de inversoes seja impar, 0 caso seja par
+    // função adaptada do paper fornecido no FAQ de Princeton
+    // http://cseweb.ucsd.edu/~ccalabro/essays/15_puzzle.pdf
     private int inversions() {
-        return 0;
+        int k = 0, i = 0, temp;
+        Board b = new Board(this.board); // board auxiliar
+        while(i < n*n) {
+            if (i+1 != tileAt(i%n, i/n) && tileAt(i%n, i/n) != 0) {
+                // guarda o numero que esta na casa errada
+                temp = b.board[i%n][i/n];
+                // coloca o numero certo
+                b.board[i%n][i/n] = i + 1;
+                // vai para a casa que devia estar o numero gaurdado
+                i = temp - 1;
+                k = 1 - k;
+            }
+            else
+                i++;
+        }
+        StdOut.println(k);
+        return k;
     }
 
     // public Iterable<Board> neighbors() {
     //     return 0;
     // }
-    public boolean isSolvable() {
-        if (!(n % 2)) {
 
+    public boolean isSolvable() {
+        if ((n % 2) != 0)
+            return inversions() == 0; // se for par, é possivel resolver
+        else {
+            return false;
         }
     }
 
@@ -101,7 +122,7 @@ public class Board {
     }
 
     public static void main(String[] args) {
-        StdOut.println(9%9);
+        // StdOut.println(9%9);
         In in = new In(args[0]);
         int n = in.readInt();
         int[][] blocks = new int[n][n];
@@ -110,6 +131,6 @@ public class Board {
                 blocks[row][col] = in.readInt();
         Board b = new Board(blocks);
         b.print();
-        StdOut.println(b.manhattan());
+        StdOut.println(b.isSolvable());
     }
 }
