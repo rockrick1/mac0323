@@ -95,9 +95,7 @@ public class Board {
         return this.equals(y);
     }
 
-    // retorna 1 caso o numero de inversoes seja impar, 0 caso seja par
-    // função adaptada do paper fornecido no FAQ de Princeton
-    // http://cseweb.ucsd.edu/~ccalabro/essays/15_puzzle.pdf
+    // retorna o numero de inversoes no tabuleiro
     private int inversions() {
         int k = 0; // numero de inversoes
         int cur, comp;
