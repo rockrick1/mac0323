@@ -1,16 +1,28 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Stopwatch;
+import edu.princeton.cs.algs4.Queue;
+import java.util.Iterator;
 
 public class Board {
-    public int[][] board;
+    private int[][] board;
     private int n;
 
     // create a board from an n-by-n array of tiles
     // where tiles[row][col] = tile at (row, col)
     public Board(int[][] tiles) {
+        if (tiles == null)
+            throw new java.lang.IllegalArgumentException();
         n = tiles.length;
-        board = tiles;
+        // inicializa o board
+        board = new int[n][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                board[i][j] = tiles[i][j];
+    }
+
+    public void set(int i, int j, int val) {
+        board[i][j] = val;
     }
 
     // string representation of this board
@@ -45,8 +57,9 @@ public class Board {
         int current = 1;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (board[i][j] != current)
+                if (tileAt(i,j) != current && tileAt(i,j) != 0)
                     ret++;
+                current++;
             }
         }
         return ret;
@@ -88,51 +101,90 @@ public class Board {
     private int inversions() {
         int k = 0; // numero de inversoes
         int cur, comp;
+        // Board b = new Board(board);
 
         for (int i = 0; i < n*n; i++) {
             cur = tileAt(i/n,i%n);
             for (int p = i; p < n*n; p++) {
                 comp = tileAt(p/n,p%n);
                 if (cur > comp && cur != 0 && comp != 0) {
-                    StdOut.print("ble "+cur + " ");
-                    StdOut.println(comp);
                     k++;
                 }
             }
         }
         // while(i < n*n) {
-        //     if (i+1 != tileAt(i%n, i/n) && tileAt(i%n, i/n) != 0) {
+        //     if (i+1 != tileAt(i%n, i/n)) {
         //         // guarda o numero que esta na casa errada
         //         temp = b.board[i%n][i/n];
         //         // coloca o numero certo
         //         b.board[i%n][i/n] = i + 1;
         //         // vai para a casa que devia estar o numero gaurdado
-        //         i = temp - 1;
+        //         if (temp != 0)
+        //             i = temp - 1;
+        //         else
+        //             i = n*n - 1;
         //         k = 1 - k;
         //     }
         //     else
         //         i++;
         // }
-        StdOut.println(k);
+        StdOut.println(k + " inversoes");
         return k;
     }
 
-    // public Iterable<Board> neighbors() {
-    //     return 0;
-    // }
+    public Iterable<Board> neighbors() {
+        Queue<Board> q = new Queue<Board>();
+        Board b;
+        int z_row = -1, z_col = -1;
+
+        // encontra a posição em que a peça vazia se encontra
+        for (int i = 0; i < n && z_row == -1; i++)
+            for (int j = 0; j < n && z_row == -1; j++)
+                if (tileAt(i, j) == 0) {
+                    z_row = i;
+                    z_col = j;
+                }
+
+        if (z_row - 1 >= 0) {
+            b = new Board(this.board);
+            // move a peça
+            b.set(z_row, z_col, b.board[z_row - 1][z_col]);
+            b.set(z_row - 1, z_col, 0);
+            // coloca o tabuleiro na fila
+            q.enqueue(b);
+        }
+        if (z_row + 1 < n) {
+            b = new Board(this.board);
+            b.set(z_row, z_col, b.board[z_row + 1][z_col]);
+            b.set(z_row + 1, z_col, 0);
+            q.enqueue(b);
+        }
+        if (z_col - 1 >= 0) {
+            b = new Board(this.board);
+            b.set(z_row, z_col, b.board[z_row][z_col - 1]);
+            b.set(z_row, z_col - 1, 0);
+            q.enqueue(b);
+        }
+        if (z_col + 1 < n) {
+            b = new Board(this.board);
+            b.set(z_row, z_col, b.board[z_row][z_col + 1]);
+            b.set(z_row, z_col + 1, 0);
+            q.enqueue(b);
+        }
+        return q;
+    }
 
     public boolean isSolvable() {
         if ((n % 2) != 0)
             return inversions() % 2 == 0; // se for par, é possivel resolver
         else {
             int zero_row = -1;
-            boolean stop = false;
-            // encontra a linha que a peça vazia se encontra
+            // encontra a linha em que a peça vazia se encontra
             for (int i = 0; i < n && zero_row == -1; i++)
                 for (int j = 0; j < n && zero_row == -1; j++)
                     if (tileAt(i, j) == 0)
                         zero_row = i;
-            StdOut.println("z: "+zero_row);
+
             return (inversions() + zero_row) % 2 == 1;
         }
     }
@@ -151,6 +203,15 @@ public class Board {
                 blocks[row][col] = in.readInt();
         Board b = new Board(blocks);
         b.print();
-        StdOut.println(b.isSolvable());
+        StdOut.println("\nneighbors:");
+
+        Iterable<Board> q;
+        q = b.neighbors();
+        Iterator<Board> it = q.iterator();
+        while (it.hasNext()) {
+            Board valor = it.next();
+            valor.print();
+        }
+        // StdOut.println(b2.isSolvable());
     }
 }
