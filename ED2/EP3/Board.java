@@ -7,6 +7,7 @@ import java.util.Iterator;
 public class Board {
     private int[][] board;
     private int n;
+    public int moves; // movimentos feitos para chegar nesse estado
 
     // create a board from an n-by-n array of tiles
     // where tiles[row][col] = tile at (row, col)
@@ -14,6 +15,7 @@ public class Board {
         if (tiles == null)
             throw new java.lang.IllegalArgumentException();
         n = tiles.length;
+        moves = 0;
         // inicializa o board
         board = new int[n][n];
         for (int i = 0; i < n; i++)
@@ -84,11 +86,21 @@ public class Board {
         return dist;
     }
 
+    public int priority() {
+        return hamming() + moves;
+    }
+
     // is this board the goal board?
-    // temporario!!!
     public boolean isGoal() {
-        if (hamming() == 0) return true;
-        return false;
+        int current = 1;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (tileAt(i, j) != current && tileAt(i, j) != 0)
+                    return false;
+                current++;
+            }
+        }
+        return true;
     }
 
     public boolean equals(Object y) {
@@ -96,7 +108,7 @@ public class Board {
         if (y == this) return true;
         if (y == null) return false;
         if (y.getClass() != this.getClass()) return false;
-        
+
         Board other = (Board) y;
 
         // checa o n primeiro
@@ -160,9 +172,10 @@ public class Board {
 
         if (z_row - 1 >= 0) {
             b = new Board(this.board);
-            // move a peça
+            // move a peça e atualiza os moves
             b.set(z_row, z_col, b.board[z_row - 1][z_col]);
             b.set(z_row - 1, z_col, 0);
+            b.moves = this.moves + 1;
             // coloca o tabuleiro na fila
             q.enqueue(b);
         }
@@ -170,18 +183,21 @@ public class Board {
             b = new Board(this.board);
             b.set(z_row, z_col, b.board[z_row + 1][z_col]);
             b.set(z_row + 1, z_col, 0);
+            b.moves = this.moves + 1;
             q.enqueue(b);
         }
         if (z_col - 1 >= 0) {
             b = new Board(this.board);
             b.set(z_row, z_col, b.board[z_row][z_col - 1]);
             b.set(z_row, z_col - 1, 0);
+            b.moves = this.moves + 1;
             q.enqueue(b);
         }
         if (z_col + 1 < n) {
             b = new Board(this.board);
             b.set(z_row, z_col, b.board[z_row][z_col + 1]);
             b.set(z_row, z_col + 1, 0);
+            b.moves = this.moves + 1;
             q.enqueue(b);
         }
         return q;
@@ -223,7 +239,7 @@ public class Board {
         Iterator<Board> it = q.iterator();
         while (it.hasNext()) {
             Board valor = it.next();
-            StdOut.println("equals? "+valor.equals(b));
+            StdOut.println("moves "+valor.moves);
             valor.print();
         }
         // StdOut.println(b2.isSolvable());
