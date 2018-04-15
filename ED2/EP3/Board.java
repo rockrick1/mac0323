@@ -92,7 +92,22 @@ public class Board {
     }
 
     public boolean equals(Object y) {
-        return this.equals(y);
+        // excessoes basicas
+        if (y == this) return true;
+        if (y == null) return false;
+        if (y.getClass() != this.getClass()) return false;
+        
+        Board other = (Board) y;
+
+        // checa o n primeiro
+        if (other.n != this.n) return false;
+
+        // checa casa por casa
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                if (this.tileAt(i,j) != other.tileAt(i,j))
+                    return false;
+        return true;
     }
 
     // retorna o numero de inversoes no tabuleiro
@@ -208,6 +223,7 @@ public class Board {
         Iterator<Board> it = q.iterator();
         while (it.hasNext()) {
             Board valor = it.next();
+            StdOut.println("equals? "+valor.equals(b));
             valor.print();
         }
         // StdOut.println(b2.isSolvable());
