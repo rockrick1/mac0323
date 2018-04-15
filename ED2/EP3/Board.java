@@ -232,16 +232,17 @@ public class Board {
                 blocks[row][col] = in.readInt();
         Board b = new Board(blocks);
         b.print();
-        StdOut.println("\nneighbors:");
-
-        Iterable<Board> q;
-        q = b.neighbors();
-        Iterator<Board> it = q.iterator();
-        while (it.hasNext()) {
-            Board valor = it.next();
-            StdOut.println("moves "+valor.moves);
-            valor.print();
-        }
+        Solver s = new Solver(b);
+        // StdOut.println("\nneighbors:");
+        //
+        // Iterable<Board> q;
+        // q = b.neighbors();
+        // Iterator<Board> it = q.iterator();
+        // while (it.hasNext()) {
+        //     Board valor = it.next();
+        //     StdOut.println("moves "+valor.moves);
+        //     valor.print();
+        // }
         // StdOut.println(b2.isSolvable());
     }
 }

@@ -26,21 +26,45 @@ public class Solver {
         vistos_nao_exam = new MinPQ<Board>(new PriorityComparator());
 
         // A* search
+        // o menor caminho do inicio de vistos ate
+        // o tab final será a solução
         vistos.insert(initial);
         vistos_nao_exam.insert(initial);
         Board b;
+        Iterator<Board> it;
+        boolean contains;
+        int ble = 1;
 
         while(true) {
+            contains = false;
             b = vistos_nao_exam.delMin();
             if (b.isGoal()) break;
 
+            // checa se o heap contém os tabuleiros
+            // vizinhos do atual
             for (Board v : b.neighbors()) {
-                if (!vistos.contains(v)) {
-                    vistos.insert(b);
-                    vistos_nao_exam.insert(b);
+                StdOut.println("prox nei");
+                it = vistos.iterator();
+                while (it.hasNext()) {
+                    Board comp = it.next();
+                    if (true)
+                        comp.print();
+                    if (comp.equals(v)) {
+                        StdOut.println("oh");
+                        contains = true;
+                        break;
+                    }
+                }
+
+                // se nao contém, insere ele
+                if (!contains) {
+                    vistos.insert(v);
+                    vistos_nao_exam.insert(v);
                 }
             }
+            ble++;
         }
+        StdOut.println("deu bom");
     }
     // min number of moves to solve initial board
     // public int moves()
