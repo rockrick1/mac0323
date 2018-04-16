@@ -233,16 +233,17 @@ public class Board {
         Board b = new Board(blocks);
         b.print();
         Solver s = new Solver(b);
-        // StdOut.println("\nneighbors:");
+        Iterable<Board> q;
+        q = s.solution();
+        StdOut.println("\nEH AGORA");
         //
         // Iterable<Board> q;
         // q = b.neighbors();
-        // Iterator<Board> it = q.iterator();
-        // while (it.hasNext()) {
-        //     Board valor = it.next();
-        //     StdOut.println("moves "+valor.moves);
-        //     valor.print();
-        // }
+        Iterator<Board> it = q.iterator();
+        while (it.hasNext()) {
+            Board valor = it.next();
+            valor.print();
+        }
         // StdOut.println(b2.isSolvable());
     }
 }

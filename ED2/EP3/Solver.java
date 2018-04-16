@@ -7,47 +7,73 @@ import java.util.Iterator;
 import java.util.Comparator;
 
 public class Solver {
-    private MinPQ<Board> vistos;
-    private MinPQ<Board> vistos_nao_exam;
+    private MinPQ<Node> vistos;
+    private MinPQ<Node> vistos_nao_exam;
+    private Node last; // Ultima node da solução/tabuleiro resolvido
     private int moves;
 
+
     // critério de comparação para as MinPQ's
-    static class PriorityComparator implements Comparator<Board> {
-        public int compare(Board b1, Board b2) {
-            return b1.priority() - b2.priority();
+    static class PriorityComparator implements Comparator<Node> {
+        public int compare(Node n1, Node n2) {
+            return n1.priority() - n2.priority();
         }
     }
+
+
+    // Estrutura para fazer a busca da sequencia da soluçao do board inicial
+    public class Node {
+        public Board b;
+        public int priority;
+        public Node parent;
+
+        public Node(Board init) {
+            b = init;
+            parent = null;
+            priority = init.priority();
+        }
+        public void set_parent(Node p) {
+            parent = p;
+        }
+        public int priority() {
+            return priority;
+        }
+    }
+
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
         if (initial == null || !initial.isSolvable())
             throw new java.lang.IllegalArgumentException();
 
-        vistos = new MinPQ<Board>(new PriorityComparator());
-        vistos_nao_exam = new MinPQ<Board>(new PriorityComparator());
+        vistos = new MinPQ<Node>(new PriorityComparator());
+        vistos_nao_exam = new MinPQ<Node>(new PriorityComparator());
 
         // A* search
         // o menor caminho do inicio de vistos ate
         // o tab final será a solução
-        vistos.insert(initial);
-        vistos_nao_exam.insert(initial);
+        Node n = new Node(initial);
+        vistos.insert(n);
+        vistos_nao_exam.insert(n);
 
-        Board b;
-        Iterator<Board> it;
+        Iterator<Node> it;
         boolean contains;
 
         while(true) {
-            b = vistos_nao_exam.delMin();
-            if (b.isGoal()) break;
+            n = vistos_nao_exam.delMin();
+
+            if (n.b.isGoal()) break;
 
             // checa se o heap contém os tabuleiros
             // vizinhos do atual
-            for (Board v : b.neighbors()) {
+            for (Board v : n.b.neighbors()) {
+                Node nv = new Node(v);
+                nv.set_parent(n);
                 contains = false;
 
                 it = vistos.iterator();
                 while (it.hasNext()) {
-                    Board comp = it.next();
+                    Board comp = it.next().b;
                     if (comp.equals(v)) {
                         contains = true;
                         break;
@@ -56,14 +82,14 @@ public class Solver {
 
                 // se nao contém, insere ele
                 if (!contains) {
-                    vistos.insert(v);
-                    vistos_nao_exam.insert(v);
+                    vistos.insert(nv);
+                    vistos_nao_exam.insert(nv);
                 }
             }
         }
-        moves = b.moves;
+        last = n;
+        moves = n.b.moves;
         StdOut.println("deu bom");
-        vistos.delMin().print();
     }
     // min number of moves to solve initial board
     public int moves() {
@@ -71,9 +97,15 @@ public class Solver {
     }
     // sequence of boards in a shortest solution
     public Iterable<Board> solution() {
-        Board b;
-        Iterator<Board> it;
+        Node n;
         Stack<Board> solution = new Stack<Board>();
+
+        n = last;
+        while (n != null) {
+            solution.push(n.b);
+            n = n.parent;
+        }
+        return solution;
     }
     // public static void main(String[] args)
 }
