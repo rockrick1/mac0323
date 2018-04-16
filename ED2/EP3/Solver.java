@@ -10,7 +10,7 @@ public class Solver {
     private MinPQ<Node> vistos;
     private MinPQ<Node> vistos_nao_exam;
     private Node last; // Ultima node da solução/tabuleiro resolvido
-    private int moves;
+    private int moves; // Quantidade de movimentos para resolver
 
 
     // critério de comparação para as MinPQ's
@@ -50,14 +50,10 @@ public class Solver {
         vistos_nao_exam = new MinPQ<Node>(new PriorityComparator());
 
         // A* search
-        // o menor caminho do inicio de vistos ate
-        // o tab final será a solução
+        // o menor caminho do inicio de vistos ate o tab final será a solução
         Node n = new Node(initial);
         vistos.insert(n);
         vistos_nao_exam.insert(n);
-
-        Iterator<Node> it;
-        boolean contains;
 
         while(true) {
             n = vistos_nao_exam.delMin();
@@ -67,21 +63,23 @@ public class Solver {
             // checa se o heap contém os tabuleiros
             // vizinhos do atual
             for (Board v : n.b.neighbors()) {
+                // define o pai do atual
                 Node nv = new Node(v);
                 nv.set_parent(n);
-                contains = false;
-
-                it = vistos.iterator();
-                while (it.hasNext()) {
-                    Board comp = it.next().b;
-                    if (comp.equals(v)) {
-                        contains = true;
-                        break;
-                    }
-                }
 
                 // se nao contém, insere ele
-                if (!contains) {
+
+                // Se o avo dele nao for null, compara pra ver se
+                // é igual ele. Se for, nao insere.
+                if (nv.parent != null && nv.parent.parent != null) {
+                    Board grandad = nv.parent.parent.b;
+                    if (!nv.b.equals(grandad)) {
+                        vistos.insert(nv);
+                        vistos_nao_exam.insert(nv);
+                    }
+                }
+                // se for null, só insere normal
+                else {
                     vistos.insert(nv);
                     vistos_nao_exam.insert(nv);
                 }
@@ -89,7 +87,6 @@ public class Solver {
         }
         last = n;
         moves = n.b.moves;
-        StdOut.println("deu bom");
     }
     // min number of moves to solve initial board
     public int moves() {

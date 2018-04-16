@@ -232,6 +232,7 @@ public class Board {
                 blocks[row][col] = in.readInt();
         Board b = new Board(blocks);
         b.print();
+        Stopwatch sw = new Stopwatch();
         Solver s = new Solver(b);
         Iterable<Board> q;
         q = s.solution();
@@ -244,6 +245,7 @@ public class Board {
             Board valor = it.next();
             valor.print();
         }
-        // StdOut.println(b2.isSolvable());
+
+        StdOut.println("time: "+sw.elapsedTime());;
     }
 }
