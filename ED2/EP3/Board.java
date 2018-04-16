@@ -70,24 +70,24 @@ public class Board {
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
         int goal_row, goal_col; // onde tem que estar
-        int cur;
+        int current = 1;
         int dist = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                cur = tileAt(i, j); // valor do tile atual
-                if (cur != 0) {
-                    goal_row = (cur - 1) / size();
-                    goal_col = (cur - 1) % size();
+                if (tileAt(i, j) != current && tileAt(i, j) != 0) {
+                    goal_row = (tileAt(i, j) - 1) / size();
+                    goal_col = (tileAt(i, j) - 1) % size();
                     dist += Math.abs(i - goal_row);
                     dist += Math.abs(j - goal_col);
                 }
+                current++;
             }
         }
         return dist;
     }
 
     public int priority() {
-        return hamming() + moves;
+        return manhattan() + moves;
     }
 
     // is this board the goal board?
@@ -153,7 +153,6 @@ public class Board {
         //     else
         //         i++;
         // }
-        StdOut.println(k + " inversoes");
         return k;
     }
 
@@ -219,6 +218,7 @@ public class Board {
     }
 
     public void print() {
+        StdOut.println("p "+priority());
         StdOut.print(toString());
     }
 

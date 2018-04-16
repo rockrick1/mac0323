@@ -1,7 +1,7 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Stopwatch;
-import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.MinPQ;
 import java.util.Iterator;
 import java.util.Comparator;
@@ -9,6 +9,7 @@ import java.util.Comparator;
 public class Solver {
     private MinPQ<Board> vistos;
     private MinPQ<Board> vistos_nao_exam;
+    private int moves;
 
     // critério de comparação para as MinPQ's
     static class PriorityComparator implements Comparator<Board> {
@@ -30,27 +31,24 @@ public class Solver {
         // o tab final será a solução
         vistos.insert(initial);
         vistos_nao_exam.insert(initial);
+
         Board b;
         Iterator<Board> it;
         boolean contains;
-        int ble = 1;
 
         while(true) {
-            contains = false;
             b = vistos_nao_exam.delMin();
             if (b.isGoal()) break;
 
             // checa se o heap contém os tabuleiros
             // vizinhos do atual
             for (Board v : b.neighbors()) {
-                StdOut.println("prox nei");
+                contains = false;
+
                 it = vistos.iterator();
                 while (it.hasNext()) {
                     Board comp = it.next();
-                    if (true)
-                        comp.print();
                     if (comp.equals(v)) {
-                        StdOut.println("oh");
                         contains = true;
                         break;
                     }
@@ -62,14 +60,20 @@ public class Solver {
                     vistos_nao_exam.insert(v);
                 }
             }
-            ble++;
         }
+        moves = b.moves;
         StdOut.println("deu bom");
+        vistos.delMin().print();
     }
     // min number of moves to solve initial board
-    // public int moves()
-    // // sequence of boards in a shortest solution
-    // public Iterable<Board> solution()
-    // // test client (see below)
+    public int moves() {
+        return moves;
+    }
+    // sequence of boards in a shortest solution
+    public Iterable<Board> solution() {
+        Board b;
+        Iterator<Board> it;
+        Stack<Board> solution = new Stack<Board>();
+    }
     // public static void main(String[] args)
 }
