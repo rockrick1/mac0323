@@ -55,6 +55,8 @@ public class Solver {
         vistos.insert(n);
         vistos_nao_exam.insert(n);
 
+        Boolean contains = false;
+
         while(true) {
             n = vistos_nao_exam.delMin();
 
@@ -63,17 +65,26 @@ public class Solver {
             // checa se o heap contém os tabuleiros
             // vizinhos do atual
             for (Board v : n.b.neighbors()) {
+                contains = false;
                 // define o pai do atual
                 Node nv = new Node(v);
                 nv.set_parent(n);
 
                 // se nao contém, insere ele
 
-                // Se o avo dele nao for null, compara pra ver se
-                // é igual ele. Se for, nao insere.
+                // Se o avo dele pra cima nao for null, compara
+                // pra ver se é igual a algum deles. Se for, nao insere.
                 if (nv.parent != null && nv.parent.parent != null) {
-                    Board grandad = nv.parent.parent.b;
-                    if (!nv.b.equals(grandad)) {
+                    Node aux = nv.parent.parent;
+
+                    while (aux != null) {
+                        if (nv.b.equals(aux.b)) {
+                            contains = true;
+                            break;
+                        }
+                        aux = aux.parent;
+                    }
+                    if (!contains) {
                         vistos.insert(nv);
                         vistos_nao_exam.insert(nv);
                     }
@@ -104,5 +115,7 @@ public class Solver {
         }
         return solution;
     }
-    // public static void main(String[] args)
+    public static void main(String[] args) {
+        StdOut.print("ble");
+    }
 }

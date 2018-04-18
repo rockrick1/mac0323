@@ -87,7 +87,7 @@ public class Board {
     }
 
     public int priority() {
-        return manhattan() + moves;
+        return hamming() + moves;
     }
 
     // is this board the goal board?
@@ -137,23 +137,22 @@ public class Board {
                 }
             }
         }
-        // while(i < n*n) {
-        //     if (i+1 != tileAt(i%n, i/n)) {
-        //         // guarda o numero que esta na casa errada
-        //         temp = b.board[i%n][i/n];
-        //         // coloca o numero certo
-        //         b.board[i%n][i/n] = i + 1;
-        //         // vai para a casa que devia estar o numero gaurdado
-        //         if (temp != 0)
-        //             i = temp - 1;
-        //         else
-        //             i = n*n - 1;
-        //         k = 1 - k;
-        //     }
-        //     else
-        //         i++;
-        // }
         return k;
+    }
+
+    public boolean isSolvable() {
+        if ((n % 2) != 0)
+            return inversions() % 2 == 0; // se for par, é possivel resolver
+        else {
+            int zero_row = -1;
+            // encontra a linha em que a peça vazia se encontra
+            for (int i = 0; i < n && zero_row == -1; i++)
+                for (int j = 0; j < n && zero_row == -1; j++)
+                    if (tileAt(i, j) == 0)
+                        zero_row = i;
+
+            return (inversions() + zero_row) % 2 == 1;
+        }
     }
 
     public Iterable<Board> neighbors() {
@@ -202,21 +201,6 @@ public class Board {
         return q;
     }
 
-    public boolean isSolvable() {
-        if ((n % 2) != 0)
-            return inversions() % 2 == 0; // se for par, é possivel resolver
-        else {
-            int zero_row = -1;
-            // encontra a linha em que a peça vazia se encontra
-            for (int i = 0; i < n && zero_row == -1; i++)
-                for (int j = 0; j < n && zero_row == -1; j++)
-                    if (tileAt(i, j) == 0)
-                        zero_row = i;
-
-            return (inversions() + zero_row) % 2 == 1;
-        }
-    }
-
     public void print() {
         StdOut.println("p "+priority());
         StdOut.print(toString());
@@ -237,7 +221,6 @@ public class Board {
         Iterable<Board> q;
         q = s.solution();
         StdOut.println("\nEH AGORA");
-        //
         // Iterable<Board> q;
         // q = b.neighbors();
         Iterator<Board> it = q.iterator();
