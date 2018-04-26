@@ -106,33 +106,33 @@ public class KdTreeST<Value> {
         if (root == null)
            return 0;
         else {
-            int lh = height(root.left);
-            int rh = height(root.right);
+            int lh = height(root.lb);
+            int rh = height(root.rt);
 
             /* use the larger one */
             if (lh > rh)
-                return(lheight + 1);
-            else return(rheight + 1);
+                return(lh + 1);
+            else return(rh + 1);
         }
     }
     // insere um ponto na fila recursivamente
-    private void insertNode(Stack s, Node root, int level) {
+    private void insertNode(Stack<Point2D> s, Node root, int level) {
         if (root == null)
             return;
         if (level == 1)
             s.push(root.p);
         else if (level > 1) {
-            insertNode(root.lb, level - 1);
-            insertNode(root.rt, level - 1);
+            insertNode(s, root.lb, level - 1);
+            insertNode(s, root.rt, level - 1);
         }
     }
     // all points in the symbol table in level order
     public Iterable<Point2D> points() {
-        int h = height();
+        int h = height(root);
         Stack<Point2D> s = new Stack<Point2D>();
         for (int i = 1; i <= h; i++)
             insertNode(s, root, i);
-        return BST.keys();
+        return s;
     }
 
 
@@ -144,7 +144,7 @@ public class KdTreeST<Value> {
         Point2D min = new Point2D(rect.xmin(), rect.ymin());
         Point2D max = new Point2D(rect.xmax(), rect.ymax());
 
-        return BST.keys(min, max);
+        return null;
     }
 
     ///////////////////////////////////////////////////////////////////
