@@ -23,12 +23,12 @@ public class NearestNeighborVisualizer {
 
         // initialize the two data structures with point from standard input
         PointST<Integer> brute = new PointST<Integer>();
-        KdTreeST<Integer> kdtree = new KdTreeST<Integer>();
+        // KdTreeST<Integer> kdtree = new KdTreeST<Integer>();
         for (int i = 0; !in.isEmpty(); i++) {
             double x = in.readDouble();
             double y = in.readDouble();
             Point2D p = new Point2D(x, y);
-            kdtree.put(p, i);
+            // kdtree.put(p, i);
             brute.put(p, i);
         }
 
@@ -56,9 +56,9 @@ public class NearestNeighborVisualizer {
             StdDraw.setPenRadius(0.02);
 
             // draw in blue the nearest neighbor according to the kd-tree algorithm
-            StdDraw.setPenColor(StdDraw.BLUE);
-            if (!kdtree.isEmpty())
-                kdtree.nearest(query).draw();
+            // StdDraw.setPenColor(StdDraw.BLUE);
+            // if (!kdtree.isEmpty())
+            //     kdtree.nearest(query).draw();
             StdDraw.show();
             StdDraw.pause(20);
         }
