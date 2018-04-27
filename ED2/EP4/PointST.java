@@ -83,9 +83,9 @@ public class PointST<Value> {
     // query point (in any order);
     // return all N points in the data structure if N <= k.
     public Iterable<Point2D> nearest(Point2D p, int k) {
-        if (p == null || k == null)
+        if (p == null)
             throw new java.lang.IllegalArgumentException();
-        
+        return null;
     }
 
     // unit testing (required)
