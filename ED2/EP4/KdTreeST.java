@@ -82,6 +82,7 @@ public class KdTreeST<Value> {
             throw new java.lang.IllegalArgumentException();
 
         // raiz é vertical
+        n++;
         Node z = new Node(p, val, true);
         if (root == null) {
             root = z;
@@ -116,6 +117,7 @@ public class KdTreeST<Value> {
             }
             else {
                 x.value = val;
+                n--;
                 return;
             }
         }
@@ -206,8 +208,22 @@ public class KdTreeST<Value> {
         return q;
     }
     private void range(Queue<Point2D> q, Node x, RectHV rect) {
+        // double min, max;
+        // boolean contains;
+        // // pega os limites da linha do ponto
+        // if (x.orient()) {
+        //     // se for vertical, pega os y's
+        //     min = x.rect().ymin();
+        //     max = x.rect().ymax();
+        // }
+        // else {
+        //     // se for horizontal, pega os x's
+        //     min = x.rect().xmin();
+        //     max = x.rect().xmax();
+        // }
         if (x != null && x.rect().intersects(rect)) {
-            q.enqueue(x.p());
+            if (rect.contains(x.p()))
+                q.enqueue(x.p());
             range(q, x.rt, rect);
             range(q, x.lb, rect);
         }
@@ -261,10 +277,8 @@ public class KdTreeST<Value> {
             kdtree.put(p, i);
         }
 
-        Iterator<Point2D> it = kdtree.points().iterator();
-        while (it.hasNext()) {
-            Point2D valor = it.next();
-            StdOut.println(valor.toString());
+        for (Point2D p : kdtree.points()) {
+            StdOut.println(p.toString());
         }
     }
 }
