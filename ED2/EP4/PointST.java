@@ -9,11 +9,6 @@ import java.util.Iterator;
 public class PointST<Value> {
     private RedBlackBST<Point2D, Value> BST;
 
-    // static class DistComparator implements Comparator<Point2D> {
-    //     public int compare(Point2D p1, Point2D p2) {
-    //         return n1.priority() - n2.priority();
-    //     }
-    // }
     // classe de node a ser usada no max-heap
     public class PQNode implements Comparable<PQNode> {
         Point2D p;
@@ -115,6 +110,9 @@ public class PointST<Value> {
     public Iterable<Point2D> nearest(Point2D p, int k) {
         if (p == null)
             throw new java.lang.IllegalArgumentException();
+
+        if (k >= size())
+            return points();
 
         // usaremos um hax heap para irmos tirando o maior dos k+1
         // pontos quando inserirmos um novo

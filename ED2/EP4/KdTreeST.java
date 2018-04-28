@@ -169,7 +169,6 @@ public class KdTreeST<Value> {
             int lh = height(root.lb);
             int rh = height(root.rt);
 
-            /* use the larger one */
             if (lh > rh)
                 return(lh + 1);
             else return(rh + 1);
@@ -238,29 +237,45 @@ public class KdTreeST<Value> {
         if (p == null)
             throw new java.lang.IllegalArgumentException();
         if (isEmpty()) return null;
+        if (size() == 1)
+            for (Point2D v : points())
+                return v;
 
         double dist, min_dist = -1;
         Point2D cmp, closest = null;
 
-        Iterator<Point2D> it = points().iterator();
-        while (it.hasNext()) {
-            cmp = it.next();
-            // não pode ser o mesmo ponto, bobinho
-            if (!cmp.equals(p)) {
-                dist = dist(p, cmp);
-                if (dist < min_dist || min_dist == -1) {
-                    min_dist = dist;
-                    closest = cmp;
-                }
-            }
+        return nearest(root, p, 10);
+    }
+    private Point2D nearest(Node x, Point2D p, double closest_dist) {
+        if (x != null)
+        double dist;
+        if (x.lb != null) {
+            dist = dist(x.lb.p(), p);
+            if (dist <= closest_dist)
+                return nearest(x.lb, p, dist);
         }
-        return closest;
+        if (x.rt != null) {
+            dist = dist(x.rt.p(), p);
+            if (dist <= closest_dist)
+                return nearest(x.rt, p, dist);
+        }
+
+        // if (x.rt == null && x.lb == null)
+        return x.p();
+
+
     }
 
     // This method should return the k points that are closest to the
     // query point (in any order);
     // return all N points in the data structure if N <= k.
     public Iterable<Point2D> nearest(Point2D p, int k) {
+        if (p == null)
+            throw new java.lang.IllegalArgumentException();
+
+        if (k >= size())
+            return points();
+
         return null;
     }
 
