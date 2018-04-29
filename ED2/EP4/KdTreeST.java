@@ -10,6 +10,7 @@ public class KdTreeST<Value> {
     private int n;
     private Node root;
     private Point2D champion;
+    private double last_champion_dist;
 
     private class Node {
         private Point2D p;
@@ -228,6 +229,7 @@ public class KdTreeST<Value> {
     private double dist(Point2D x, Point2D y) {
         return x.distanceSquaredTo(y);
     }
+
     // a nearest neighbor of point p; null if the symbol table is empty
     public Point2D nearest(Point2D p) {
         if (p == null)
@@ -238,35 +240,39 @@ public class KdTreeST<Value> {
                 return v;
 
         double dist, min_dist = -1;
-        champion = root.p();
-
-        // dist = dist(root.p(), p);
+        champion = root.p(); // variavel "global"
 
         nearest(root, p);
         return champion;
     }
     private void nearest(Node x, Point2D p) {
+        // se for null, nao faz nada
         if (x == null)
             return;
+        // se achou um novo campeao, atualiza
         if (dist(champion, p) > dist(x.p(), p))
             champion = x.p();
 
         double best_dist = dist(champion, p);
         double medio;
+        // se a node for vertical
         if (x.orient) {
+            // pega o ponto medio da linha
             medio = x.rect().xmax() - x.rect().xmin();
-
+            // se estiver a esquerda, procura a esquerda primeiro
             if (x.p().x() < medio) {
                 nearest(x.lb, p);
                 if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < best_dist)
                     nearest(x.rt, p);
             }
+            // se estiver a direita, procura a direita primeiro
             else {
                 nearest(x.rt, p);
                 if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < best_dist)
                     nearest(x.lb, p);
             }
         }
+        // se for horizontal, analogamente para y
         else {
             medio = x.rect().ymax() - x.rect().ymin();
 
@@ -283,6 +289,7 @@ public class KdTreeST<Value> {
         }
     }
 
+
     // This method should return the k points that are closest to the
     // query point (in any order);
     // return all N points in the data structure if N <= k.
@@ -293,7 +300,63 @@ public class KdTreeST<Value> {
         if (k >= size())
             return points();
 
-        return null;
+        champion = root.p();
+        last_champion_dist = -1;
+        Queue<Point2D> q = new Queue<Point2D>();
+        // StdOut.println("shnarboozle");
+        for (int i = 0; i < k; i++) {
+            nearestk(root, p);
+            last_champion_dist = dist(champion, p);
+            q.enqueue(champion);
+        }
+        return q;
+    }
+
+    private void nearestk(Node x, Point2D p) {
+        // se for null, nao faz nada
+        if (x == null)
+            return;
+        // agora o campeao atual tem que ser o ponto com a menor
+        // distancia maior que a do ultimo campeao
+        double dist = dist(champion, p);
+        if (dist > dist(x.p(), p) && dist > last_champion_dist) {
+            champion = x.p();
+        }
+
+        double best_dist = dist(champion, p);
+        double medio;
+        // se a node for vertical
+        if (x.orient) {
+            // pega o ponto medio da linha
+            medio = x.rect().xmax() - x.rect().xmin();
+            // se estiver a esquerda, procura a esquerda primeiro
+            if (x.p().x() < medio) {
+                nearestk(x.lb, p);
+                if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < best_dist)
+                    nearestk(x.rt, p);
+            }
+            // se estiver a direita, procura a direita primeiro
+            else {
+                nearestk(x.rt, p);
+                if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < best_dist)
+                    nearestk(x.lb, p);
+            }
+        }
+        // se for horizontal, analogamente para y
+        else {
+            medio = x.rect().ymax() - x.rect().ymin();
+
+            if (x.p().y() < medio) {
+                nearestk(x.lb, p);
+                if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < best_dist)
+                    nearestk(x.rt, p);
+            }
+            else {
+                nearestk(x.rt, p);
+                if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < best_dist)
+                    nearestk(x.lb, p);
+            }
+        }
     }
 
     // unit testing (required)

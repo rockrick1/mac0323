@@ -114,7 +114,7 @@ public class PointST<Value> {
         if (k >= size())
             return points();
 
-        // usaremos um hax heap para irmos tirando o maior dos k+1
+        // usaremos um max heap para irmos tirando o maior dos k+1
         // pontos quando inserirmos um novo
         int aux_k = 0;
         MaxPQ<PQNode> pq = new MaxPQ<PQNode>();
@@ -123,9 +123,10 @@ public class PointST<Value> {
             PQNode node = new PQNode(u, dist);
             pq.insert(node);
 
-            aux_k++;
-            if (aux_k > k)
+            if (aux_k >= k)
                 pq.delMax();
+            else
+                aux_k++;
         }
 
         Queue<Point2D> q = new Queue<Point2D>();
