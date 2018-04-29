@@ -246,68 +246,39 @@ public class KdTreeST<Value> {
         return champion;
     }
     private void nearest(Node x, Point2D p) {
-        double dist;
-        boolean srch_left = false, srch_right = false;
-        Point2D pl, pr;
-        pl = new Point2D(-1, -1);
-        pr = new Point2D(-1, -1);
-
-        // if (x.lb != null) {
-        //     dist = dist(x.lb.p(), p);
-        //     if (dist <= closest_dist) {
-        //         srch_left = true;
-        //         pl = nearest(x.lb, p, dist(p, x.lb.p()));
-        //     }
-        // }
-        // if (x.rt != null) {
-        //     dist = dist(x.rt.p(), p);
-        //     if (dist <= closest_dist) {
-        //         srch_right = true;
-        //         pr = nearest(x.rt, p, dist(p, x.rt.p()));
-        //     }
-        // }
-        //
-        // if (srch_left && srch_right) {
-        //     if (dist(pl, p) < dist(pr, p)) return pl;
-        //     return pr;
-        // }
-        // if (srch_left) return pl;
-        // if (srch_right) return pr;
-        // return x.p();
         if (x == null)
             return;
-        if (x.lb == null && x.rt == null)
+        if (dist(champion, p) > dist(x.p(), p))
             champion = x.p();
-        else {
-            double best_dist = dist(champion, p);
-            double medio;
-            if (x.orient) {
-                medio = x.rect().xmax() - x.rect().xmin();
 
-                if (x.p().x() < medio) {
-                    nearest(x.lb, p);
-                    if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < best_dist)
-                        nearest(x.rt, p);
-                }
-                else {
+        double best_dist = dist(champion, p);
+        double medio;
+        if (x.orient) {
+            medio = x.rect().xmax() - x.rect().xmin();
+
+            if (x.p().x() < medio) {
+                nearest(x.lb, p);
+                if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < best_dist)
                     nearest(x.rt, p);
-                    if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < best_dist)
-                        nearest(x.lb, p);
-                }
             }
             else {
-                medio = x.rect().ymax() - x.rect().ymin();
-
-                if (x.p().y() < medio) {
+                nearest(x.rt, p);
+                if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < best_dist)
                     nearest(x.lb, p);
-                    if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < best_dist)
-                        nearest(x.rt, p);
-                }
-                else {
+            }
+        }
+        else {
+            medio = x.rect().ymax() - x.rect().ymin();
+
+            if (x.p().y() < medio) {
+                nearest(x.lb, p);
+                if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < best_dist)
                     nearest(x.rt, p);
-                    if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < best_dist)
-                        nearest(x.lb, p);
-                }
+            }
+            else {
+                nearest(x.rt, p);
+                if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < best_dist)
+                    nearest(x.lb, p);
             }
         }
     }
