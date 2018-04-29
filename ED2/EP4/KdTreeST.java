@@ -9,6 +9,7 @@ import java.util.Iterator;
 public class KdTreeST<Value> {
     private int n;
     private Node root;
+    private Point2D champion;
 
     private class Node {
         private Point2D p;
@@ -24,7 +25,7 @@ public class KdTreeST<Value> {
             orient = ori;
             lb = null;
             rt = null;
-            rect = new RectHV(-2, -2, 2, 2);
+            rect = new RectHV(0, 0, 1, 1);
         }
         public double compareTo(Point2D cmp) {
             if (this.orient) // se for vertical
@@ -95,7 +96,7 @@ public class KdTreeST<Value> {
         while (x != null) {
             cmp = x.compareTo(p);
             parent = x;
-            if (cmp > 0) {
+            if (cmp >= 0) {
                 // define as bordas do retangulo da node
                 // enquanto ela "viaja" pela arvore:
                 // se o pai é vertical e foi para direita, muda o xmin
@@ -106,7 +107,7 @@ public class KdTreeST<Value> {
                 else
                     z.rect_ymin(parent.p().y());
             }
-            else if (cmp < 0) {
+            else {
                 // se o pai é vertical e foi para esquerda, muda o xmax
                 x = x.lb;
                 if (parent.orient)
@@ -114,11 +115,6 @@ public class KdTreeST<Value> {
                 // se for horizontal, muda o ymax
                 else
                     z.rect_ymax(parent.p().y());
-            }
-            else {
-                x.value = val;
-                n--;
-                return;
             }
         }
         // insere a nova node como filho de parent
@@ -242,28 +238,78 @@ public class KdTreeST<Value> {
                 return v;
 
         double dist, min_dist = -1;
-        Point2D cmp, closest = null;
+        champion = root.p();
 
-        return nearest(root, p, 10);
+        // dist = dist(root.p(), p);
+
+        nearest(root, p);
+        return champion;
     }
-    private Point2D nearest(Node x, Point2D p, double closest_dist) {
-        if (x != null)
+    private void nearest(Node x, Point2D p) {
         double dist;
-        if (x.lb != null) {
-            dist = dist(x.lb.p(), p);
-            if (dist <= closest_dist)
-                return nearest(x.lb, p, dist);
+        boolean srch_left = false, srch_right = false;
+        Point2D pl, pr;
+        pl = new Point2D(-1, -1);
+        pr = new Point2D(-1, -1);
+
+        // if (x.lb != null) {
+        //     dist = dist(x.lb.p(), p);
+        //     if (dist <= closest_dist) {
+        //         srch_left = true;
+        //         pl = nearest(x.lb, p, dist(p, x.lb.p()));
+        //     }
+        // }
+        // if (x.rt != null) {
+        //     dist = dist(x.rt.p(), p);
+        //     if (dist <= closest_dist) {
+        //         srch_right = true;
+        //         pr = nearest(x.rt, p, dist(p, x.rt.p()));
+        //     }
+        // }
+        //
+        // if (srch_left && srch_right) {
+        //     if (dist(pl, p) < dist(pr, p)) return pl;
+        //     return pr;
+        // }
+        // if (srch_left) return pl;
+        // if (srch_right) return pr;
+        // return x.p();
+        if (x == null)
+            return;
+        if (x.lb == null && x.rt == null)
+            champion = x.p();
+        else {
+            double best_dist = dist(champion, p);
+            double medio;
+            if (x.orient) {
+                medio = x.rect().xmax() - x.rect().xmin();
+
+                if (x.p().x() < medio) {
+                    nearest(x.lb, p);
+                    if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < best_dist)
+                        nearest(x.rt, p);
+                }
+                else {
+                    nearest(x.rt, p);
+                    if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < best_dist)
+                        nearest(x.lb, p);
+                }
+            }
+            else {
+                medio = x.rect().ymax() - x.rect().ymin();
+
+                if (x.p().y() < medio) {
+                    nearest(x.lb, p);
+                    if (x.rt != null && x.rt.rect.distanceSquaredTo(p) < best_dist)
+                        nearest(x.rt, p);
+                }
+                else {
+                    nearest(x.rt, p);
+                    if (x.lb != null && x.lb.rect.distanceSquaredTo(p) < best_dist)
+                        nearest(x.lb, p);
+                }
+            }
         }
-        if (x.rt != null) {
-            dist = dist(x.rt.p(), p);
-            if (dist <= closest_dist)
-                return nearest(x.rt, p, dist);
-        }
-
-        // if (x.rt == null && x.lb == null)
-        return x.p();
-
-
     }
 
     // This method should return the k points that are closest to the
@@ -281,6 +327,7 @@ public class KdTreeST<Value> {
 
     // unit testing (required)
     public static void main(String[] args) {
+        Point2D b;
         String filename = args[0];
         In in = new In(filename);
         KdTreeST<Integer> kdtree = new KdTreeST<Integer>();
