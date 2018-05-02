@@ -4,6 +4,7 @@ import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.RedBlackBST;
 import edu.princeton.cs.algs4.In;
 import java.util.Iterator;
 
@@ -12,6 +13,7 @@ public class KdTreeST<Value> {
     private Node root;
     private Point2D champion;
     private double last_champion_dist;
+    // private double best_dist;
 
     private class Node {
         private Point2D p;
@@ -205,19 +207,6 @@ public class KdTreeST<Value> {
         return q;
     }
     private void range(Queue<Point2D> q, Node x, RectHV rect) {
-        // double min, max;
-        // boolean contains;
-        // // pega os limites da linha do ponto
-        // if (x.orient()) {
-        //     // se for vertical, pega os y's
-        //     min = x.rect().ymin();
-        //     max = x.rect().ymax();
-        // }
-        // else {
-        //     // se for horizontal, pega os x's
-        //     min = x.rect().xmin();
-        //     max = x.rect().xmax();
-        // }
         if (x != null && x.rect().intersects(rect)) {
             if (rect.contains(x.p()))
                 q.enqueue(x.p());
@@ -242,7 +231,6 @@ public class KdTreeST<Value> {
         for (Point2D k : nearest(p,1))
             return k;
 
-        double dist, min_dist = -1;
         champion = root.p(); // variavel "global"
 
         nearest(root, p);
@@ -316,15 +304,13 @@ public class KdTreeST<Value> {
             return;
         // agora o campeao atual tem que ser o ponto com a menor
         // distancia maior que a do ultimo campeao
-        double dist = dist(champion, p);
+        double best_dist = dist(champion, p);
         double cur_dist = dist(x.p(), p);
-        // if (!s.isEmpty())
-        //     last_champion_dist = dist(s.peek(), p);
-        if (dist > cur_dist && cur_dist > last_champion_dist) {
+        if (best_dist > cur_dist && cur_dist > last_champion_dist) {
             champion = x.p();
+            best_dist = dist(champion, p);
         }
 
-        double best_dist = dist(champion, p);
         // se a node for vertical
         if (x.orient) {
             // se estiver a esquerda, procura a esquerda primeiro
