@@ -16,7 +16,7 @@ import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.MinPQ;
+import edu.princeton.cs.algs4.MaxPQ;
 import java.util.Comparator;
 
 /**
@@ -54,14 +54,14 @@ public class MeuTST<Value extends Comparable<Value>> {
         }
     }
 
-    // Essa node será usada na MinPQ para guardar as palavras e os seus
+    // Essa node será usada na MaxPQ para guardar as palavras e os seus
     // valores apenas, tendo assim um comparador para os valores
     private static class StrNode<Value extends Comparable<Value>> {
         private String str; // palavra
         private Value val; // valor associado
 
         public int compareTo(StrNode<Value> other) {
-            return val.compareTo(other.val);
+            return this.val.compareTo(other.val);
         }
     }
 
@@ -242,7 +242,7 @@ public class MeuTST<Value extends Comparable<Value>> {
         }
 
         Queue<String> queue = new Queue<String>();
-        MinPQ<StrNode> pq = new MinPQ<StrNode>(new PriorityComparator());
+        MaxPQ<StrNode> pq = new MaxPQ<StrNode>(new PriorityComparator());
         Node<Value> x = get(root, prefix, 0);
 
         if (x == null) return queue;
@@ -252,14 +252,14 @@ public class MeuTST<Value extends Comparable<Value>> {
             n.val = x.val;
             pq.insert(n);
         }
-        // Ao final dessa função teremos uma MinPQ com todas as palavras
+        // Ao final dessa função teremos uma MaxPQ com todas as palavras
         // com o prefixo dado ordenada pelos valores das palavras,
-        // logo, usando delMin temos as palavras em ordem de valor :D
+        // logo, usando delMax temos as palavras em ordem de valor :D
         collectNode(x.mid, new StringBuilder(prefix), pq);
 
         int size = pq.size();
         for (int i = 0; i < size; i++)
-            queue.enqueue(pq.delMin().str);
+            queue.enqueue(pq.delMax().str);
 
         return queue;
     }
@@ -276,8 +276,8 @@ public class MeuTST<Value extends Comparable<Value>> {
     }
 
     // coleta todas as palavras abaixo de uma node, junto com seu valor,
-    // e vai inserindo elas na MinPQ
-    private void collectNode(Node<Value> x, StringBuilder prefix, MinPQ<StrNode> pq) {
+    // e vai inserindo elas na MaxPQ
+    private void collectNode(Node<Value> x, StringBuilder prefix, MaxPQ<StrNode> pq) {
         if (x == null) return;
         collectNode(x.left,  prefix, pq);
         if (x.val != null) {
@@ -335,7 +335,7 @@ public class MeuTST<Value extends Comparable<Value>> {
      * inspiração.
      */
     public void delete(String key) {
-        if (key == null) throw new IllegalArgumentException("argument to delete() is null");
+        if (key == null) throw new NullPointerException();
         root = delete(root, key, 0);
     }
 
@@ -357,23 +357,7 @@ public class MeuTST<Value extends Comparable<Value>> {
             if (temp.c == c)
                 temp.mid = delete(temp.mid, key, d + 1);
         }
-
-        // se houver alguma node com valor não nulo abaixo, retorna ela
-        if (x.val != null) return x;
-
-        // procura a node mas a esquerda, para percorrer todas desse nivel
-        Node<Value> v = x;
-        while (v.left != null)
-            v = v.left;
-
-        // se houver alguma node que possui um filho no meio, retorna ela
-        while (v != null) {
-            if (v.mid != null)
-                return v;
-            v = v.right;
-        }
-        // se não houver nenhuma, deleta a subarvore da node atual
-        return null;
+        return x;
     }
 
 
