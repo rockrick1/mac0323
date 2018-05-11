@@ -16,6 +16,7 @@ import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.MinPQ;
 import java.util.Comparator;
 
 /**
@@ -45,6 +46,24 @@ public class MeuTST<Value extends Comparable<Value>> {
 
     private int n;              // size
     private Node<Value> root;   // root of TST
+
+    // comparador para a minPQ
+    static class PriorityComparator implements Comparator<StrNode> {
+        public int compare(StrNode n1, StrNode n2) {
+            return n1.compareTo(n2);
+        }
+    }
+
+    // Essa node será usada na MinPQ para guardar as palavras e os seus
+    // valores apenas, tendo assim um comparador para os valores
+    private static class StrNode<Value extends Comparable<Value>> {
+        private String str; // palavra
+        private Value val; // valor associado
+
+        public int compareTo(StrNode<Value> other) {
+            return val.compareTo(other.val);
+        }
+    }
 
     private static class Node<Value> {
         private char c;                        // character
@@ -218,7 +237,31 @@ public class MeuTST<Value extends Comparable<Value>> {
      */
     // all keys starting with given prefix
     public Iterable<String> keysWithPrefixByValue(String prefix) {
-        return keysWithPrefix(prefix);
+        if (prefix == null) {
+            throw new IllegalArgumentException("calls keysWithPrefix() with null argument");
+        }
+
+        Queue<String> queue = new Queue<String>();
+        MinPQ<StrNode> pq = new MinPQ<StrNode>(new PriorityComparator());
+        Node<Value> x = get(root, prefix, 0);
+
+        if (x == null) return queue;
+        if (x.val != null) {
+            StrNode<Value> n = new StrNode<Value>();
+            n.str = prefix;
+            n.val = x.val;
+            pq.insert(n);
+        }
+        // Ao final dessa função teremos uma MinPQ com todas as palavras
+        // com o prefixo dado ordenada pelos valores das palavras,
+        // logo, usando delMin temos as palavras em ordem de valor :D
+        collectNode(x.mid, new StringBuilder(prefix), pq);
+
+        int size = pq.size();
+        for (int i = 0; i < size; i++)
+            queue.enqueue(pq.delMin().str);
+
+        return queue;
     }
 
 
@@ -230,6 +273,24 @@ public class MeuTST<Value extends Comparable<Value>> {
         collect(x.mid,   prefix.append(x.c), queue);
         prefix.deleteCharAt(prefix.length() - 1);
         collect(x.right, prefix, queue);
+    }
+
+    // coleta todas as palavras abaixo de uma node, junto com seu valor,
+    // e vai inserindo elas na MinPQ
+    private void collectNode(Node<Value> x, StringBuilder prefix, MinPQ<StrNode> pq) {
+        if (x == null) return;
+        collectNode(x.left,  prefix, pq);
+        if (x.val != null) {
+            // Cria uma node que possui a palavra e o valor
+            // e a insere na PQ baseado em seu valor
+            StrNode<Value> n = new StrNode<Value>();
+            n.str = prefix.toString() + x.c;
+            n.val = x.val;
+            pq.insert(n);
+        }
+        collectNode(x.mid,   prefix.append(x.c), pq);
+        prefix.deleteCharAt(prefix.length() - 1);
+        collectNode(x.right, prefix, pq);
     }
 
 
@@ -274,7 +335,45 @@ public class MeuTST<Value extends Comparable<Value>> {
      * inspiração.
      */
     public void delete(String key) {
-        // TAREFA
+        if (key == null) throw new IllegalArgumentException("argument to delete() is null");
+        root = delete(root, key, 0);
+    }
+
+    private Node<Value> delete(Node<Value> x, String key, int d) {
+        if (x == null) return null;
+        if (d == key.length() - 1) {
+            if (x.val != null) n--;
+            x.val = null;
+        }
+        else {
+            char c = key.charAt(d);
+            Node<Value> temp = x;
+
+            // procura a node que possua c
+            while (temp.c > c && temp.left != null)
+                temp = temp.left;
+            while (temp.c < c && temp.right != null)
+                temp = temp.right;
+            if (temp.c == c)
+                temp.mid = delete(temp.mid, key, d + 1);
+        }
+
+        // se houver alguma node com valor não nulo abaixo, retorna ela
+        if (x.val != null) return x;
+
+        // procura a node mas a esquerda, para percorrer todas desse nivel
+        Node<Value> v = x;
+        while (v.left != null)
+            v = v.left;
+
+        // se houver alguma node que possui um filho no meio, retorna ela
+        while (v != null) {
+            if (v.mid != null)
+                return v;
+            v = v.right;
+        }
+        // se não houver nenhuma, deleta a subarvore da node atual
+        return null;
     }
 
 
@@ -300,18 +399,19 @@ public class MeuTST<Value extends Comparable<Value>> {
         StdOut.println("Teste interativo. Digite algo e tecle ENTER. Tecle crtl+d para encerrar,");
         // read in queries from standard input and print out the matching terms
         StdOut.print(">>> ");
-        while (StdIn.hasNextLine()) {
-            String prefix = StdIn.readLine();
-            Iterable<String> results = terms.keysWithPrefix(prefix);
-            StdOut.println("----------------------");
-            for (String key : results)
-                StdOut.println("   '" + key + "' : " + terms.get(key));
-            StdOut.println("----------------------");
-            Iterable<String> resultsValue = terms.keysWithPrefixByValue(prefix);
-            for (String key : resultsValue)
-                StdOut.println("   '" + key + "' : " + terms.get(key));
-            StdOut.print(">>> ");
-        }
+        // while (StdIn.hasNextLine()) {
+        //     String prefix = StdIn.readLine();
+        //     Iterable<String> results = terms.keysWithPrefix(prefix);
+        //     StdOut.println("----------------------");
+        //     for (String key : results)
+        //         StdOut.println("   '" + key + "' : " + terms.get(key));
+        //     StdOut.println("----------------------");
+        //     Iterable<String> resultsValue = terms.keysWithPrefixByValue(prefix);
+        //     for (String key : resultsValue)
+        //         StdOut.println("   '" + key + "' : " + terms.get(key));
+        //     // StdOut.println(resultsValue);
+        //     StdOut.print(">>> ");
+        // }
 
         // teste delete()
         StdOut.println("\niniciando teste de delete()...");
