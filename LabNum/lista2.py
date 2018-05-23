@@ -1,86 +1,59 @@
 import math
 import numpy as np
+np.set_printoptions(precision=2,suppress=True)
 
 def LU(A):
     print("A:")
-    printa(A)
-    n = 4
-    P = []
-    L = []
-    for i in range(n):
-        linP = []
-        linL = []
-        for j in range(n):
-            linP.append(0)
-            linL.append(0)
-        linP[i] = 1
-        linL[i] = 1
-        P.append(linP)
-        L.append(linL)
+    print(A)
+    n = len(A)
+    P = np.identity(n)
+    L = np.zeros((n,n))
 
-    for pivot in range(n):
+    for pivot in range(n-1):
         # permuta de forma ao maior ficar na primeira linha do pivot
         max = pivot
 
+        # acha o maior valor para ser o pivot
         for k in range(pivot, n):
-            if A[k][pivot] > A[max][pivot]:
+            if A.item(k,pivot) > A.item(max,pivot):
                 max = k
-                A[pivot],A[max] = A[max],A[pivot]
-                P[pivot],P[max] = P[max],P[pivot]
+                # troca as linhas
+        A[[pivot,max]] = A[[max,pivot]]
+        P[[pivot,max]] = P[[max,pivot]]
+        L[[pivot,max]] = L[[max,pivot]]
 
-        max_val = A[pivot][pivot]
+        max_val = A.item(pivot,pivot)
 
-        # acha os coeficientes esubtrai da primeira linha
+        # acha os coeficientes e subtrai da primeira linha
         for i in range(pivot + 1, n):
-            coef = A[i][pivot] / max_val
-            L[i][pivot] = coef
+            coef = A.item(i, pivot) / max_val
+            L[i, pivot] = coef
 
             # zera a primeira pos, mexendo no resto
             for j in range(pivot, n):
-                A[i][j] -= coef * A[pivot][j]
+                # A[i] -= np.multiply(coef,A[pivot])
+                A[i,j] -= coef * A.item(pivot,j)
 
-
-
+    for i in range(n):
+        L[i,i] = 1
 
     print("P:")
-    printa(P)
-
+    print(P)
     print("L:")
-    printa(L)
+    print(L)
     print("U:")
-    printa(A)
+    print(A)
+    print("LxU")
+    B = np.matmul(L,A)
+    print(np.matmul(P,B))
 
-def printa(M):
-    for lin in M:
-        print(lin)
 
-def mult_vector(a, b):
-    sum = 0
-    for i in range(len(a)):
-        sum += a[i] * b[i]
-    return sum
 
-def mult_vector_const(c,v):
-    ret = []
-    for k in v:
-        ret.append(c*k)
-    return ret
 
-def sub_vector(a,b):
-    ret = []
-    for i in range(len(a)):
-        ret.append(a[i] - b[i])
-    return ret
-
-def norma(a):
-    norma = 0
-    for k in a:
-        norma += k*k
-    return math.sqrt(norma)
 
 def QR(A):
     # cria o conjunto de vetores a serem ortogonalizados
-    printa(A)
+    print(A)
     span = []
     for j in range(len(A[0])):
         v = []
@@ -89,50 +62,66 @@ def QR(A):
         span.append(v)
 
     ort = []
-    ort.append(span[0])
     print("QR")
-    for i in range(1,len(span)):
+    for i in range(len(span)):
         v = span[i]
-        proj = v
+        proj = span[i]
 
         for x in ort:
-            vx = mult_vector(v,x)
-            xx = mult_vector(x,x)
-            sub = mult_vector_const(vx/xx, x)
+            vx = np.dot(span[i],x)
+            xx = np.dot(x,x)
+            sub = np.multiply(vx/xx, x)
             # -= sub
-            proj = sub_vector(proj,sub)
+            proj = np.subtract(proj,sub)
 
-        v = sub_vector(x,proj)
-        ort.append(v)
+        ort.append(proj)
 
-    for v in ort:
+    for i in range(len(ort)):
         # divide pela norma
-        norma = np.linalg.norm(v)
-        v = mult_vector_const(1/norma, v)
-        print(v)
+        norma = np.linalg.norm(ort[i])
+        ort[i] = np.multiply(1/norma, ort[i])
 
-    # Q^t A = R
-    R = np.zeros((len(ort), len(ort)))
+    # R = np.zeros((len(ort), len(ort)))
+
+    # Q^t.A = R
+    print("R:")
+    R = np.matmul(ort,A)
     print(R)
 
-    print("R:")
-    # for i in range(len(ort)):
-    #     for j in range(len(ort[i])):
-    #         sum = 0
-    #         for o in range(len(ort[i])):
-    #             sum += ort[i][o] * A[o][i]
-    #         a.append(m)
-    #     R.append(a)
-    print(np.matmul(ort,A))
 
 
+def LLT(A):
+    print(A)
+    n = len(A)
+    L = np.zeros((n,n))
+    for k in range(n):
+        for i in range(k+1):
+            a = A.item(k,i)
 
+            if k != i:
+                sum = 0
+                for j in range(i):
+                    sum += L.item(i,j) * L.item(k,j)
+                L[k,i] = (a - sum) / L.item(i,i)
 
-A = [[3,1,4,5],
-     [1,2,2,1],
-     [0,3,4,3],
-     [4,1,1,0]]
+            else:
+                sum = 0
+                for j in range(k-1):
+                    sum += L.item(k,j) ** 2
+                print(a - sum)
+                L[k,k] = np.sqrt(a - sum)
+    print("L:\n",L)
+    print("Lt:\n",L.transpose())
+    print(np.matmul(L,L.transpose()))
 
-# LU(A)
-QR(A)
+def main():
+    A = np.matrix('2. 1 5; 1 4 4; 5 4 20')
 
+    ## DONE
+    # LU(A)
+
+    ## DONE
+    # QR(A)
+
+    LLT(A)
+main()
