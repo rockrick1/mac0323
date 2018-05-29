@@ -1,6 +1,5 @@
 import edu.princeton.cs.algs4.BinaryStdIn;
 import edu.princeton.cs.algs4.BinaryStdOut;
-import edu.princeton.cs.algs4.StdOut;
 
 public class MoveToFront {
     // sequencia de chars
@@ -14,9 +13,6 @@ public class MoveToFront {
             public Node(char c) {
                 this.c = c;
             }
-            public void setChar(char c) {
-                this.c = c;
-            }
         }
 
         // inicializa uma lista ligada com cada nó contendo um char,
@@ -27,19 +23,6 @@ public class MoveToFront {
                 Node n = new Node(c);
                 n.next = root;
                 root = n;
-            }
-        }
-
-        public char charAt(int idx) {
-            if (idx < 0 || idx > 255)
-                throw new java.lang.IllegalArgumentException();
-
-            int i = 0;
-            Node n = root;
-            while (true) {
-                if (i == idx) return n.c;
-                i++;
-                n = n.next;
             }
         }
 
