@@ -596,7 +596,7 @@ public class AutocompleteGUI extends JFrame {
 
                 // TAREFA. se vocÃª ainda nÃ£o fez sua tarefa, descomente a linha anterior e comente a
                 //         proxima.
-                Iterable<String> allResults = auto.prefixMatchByValue(text); // MAC0323
+                Iterable<String> allResults = auto.keysWithPrefixByValue(text); // MAC0323
 
                 if (allResults == null) {
                     throw new NullPointerException("allMatches() is null");
