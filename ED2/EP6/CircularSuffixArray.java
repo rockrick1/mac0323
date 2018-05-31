@@ -18,16 +18,18 @@ public class CircularSuffixArray {
     // usaremos essa classe numa MinPQ para termos as strings em ordem
     // alfabetica e mantendo a informação dos seus indices originais
     public class Node {
-        public int i;
-        public String s;
+        public int index;
+        public int suffix;
 
-        public Node(String s, int i) {
-            this.s = s;
-            this.i = i;
+        public Node(int suffix, int index) {
+            this.suffix = suffix;
+            this.index = index;
         }
 
         public int compareTo(Node other) {
-            return this.s.compareTo(other.s);
+            String a = s.substring(this.suffix, length()) + s.substring(0, this.suffix);
+            String b = s.substring(other.suffix, length()) + s.substring(0, other.suffix);
+            return a.compareTo(b);
         }
     }
 
@@ -44,21 +46,18 @@ public class CircularSuffixArray {
         MinPQ<Node> pq = new MinPQ<Node>(new PriorityComparator());
 
         for (int i = 0; i < length; i++) {
-            pq.insert(new Node(sub, i));
-            // não precisamos fazer isso na ultima iteração desse for
-            if (i != length - 1) {
-                char c = sub.charAt(0);
-                sub = sub.substring(1,length);
-                sub += c;
-            }
+            pq.insert(new Node(i, i));
         }
 
         transform = "";
         index = new int[length];
         for (int i = 0; i < length; i++) {
             Node v = pq.delMin();
-            index[i] = v.i;
-            transform += v.s.charAt(length - 1);
+            index[i] = v.index;
+            if (v.suffix != 0)
+                transform += s.charAt(v.suffix - 1);
+            else
+                transform += s.charAt(length - 1);
         }
     }
 
@@ -82,10 +81,11 @@ public class CircularSuffixArray {
 
     // unit testing (required)
     public static void main(String[] args) {
-        String s = "I am a blind cave salamander";
+        String s = "ABRACADABRA!";
         CircularSuffixArray CSA = new CircularSuffixArray(s);
 
         for (int i = 0; i < CSA.length(); i++)
             StdOut.println(CSA.index(i));
+        StdOut.println(CSA.transform());
     }
 }
