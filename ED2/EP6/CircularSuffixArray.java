@@ -1,10 +1,12 @@
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.MinPQ;
+import edu.princeton.cs.algs4.StdOut;
 import java.util.Comparator;
 
 public class CircularSuffixArray {
     private int[] index;
     private String s;
+    private String transform;
 
     // comparador de nodes para MinPQ
     static class PriorityComparator implements Comparator<Node> {
@@ -51,9 +53,13 @@ public class CircularSuffixArray {
             }
         }
 
+        transform = "";
         index = new int[length];
-        for (int i = 0; i < length; i++)
-            index[i] = pq.delMin().i;
+        for (int i = 0; i < length; i++) {
+            Node v = pq.delMin();
+            index[i] = v.i;
+            transform += v.s.charAt(length - 1);
+        }
     }
 
     // length of s
@@ -66,6 +72,12 @@ public class CircularSuffixArray {
         if (i < 0 || i >= length())
             throw new java.lang.IllegalArgumentException();
         return index[i];
+    }
+
+    // fornece a string formada pelos ultimos chars de cada
+    // string na ordem obtida após a ordenação feita acima
+    public String transform() {
+        return transform;
     }
 
     // unit testing (required)
