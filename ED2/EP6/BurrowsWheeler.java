@@ -9,14 +9,9 @@ public class BurrowsWheeler {
         // String input = BinaryStdIn.readString();
         CircularSuffixArray CSA = new CircularSuffixArray(BinaryStdIn.readString());
 
-        // acha o first
-        int first = 0;
+        StdOut.println("oi");
+        int first = CSA.first();
         int length = CSA.length();
-        for (int i = 0; i < length; i++)
-            if (CSA.index(i) == 0) {
-                first = i;
-                break;
-            }
 
         String transform = CSA.transform();
         BinaryStdOut.write(first);
