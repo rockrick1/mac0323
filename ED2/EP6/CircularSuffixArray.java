@@ -10,6 +10,41 @@ public class CircularSuffixArray {
     private int first;
     private String s;
     private String transform;
+    private Node[] array;
+
+    // usaremos essa no Quick3node para termos as strings em ordem
+    // alfabetica e mantendo a informação dos seus indices originais
+    // tambem mantem o ultimo char da string que a node representa
+    public class Node {
+        public int index;
+        public int suffix;
+        public char c;
+
+        public Node(int suffix, int index, char c) {
+            this.suffix = suffix;
+            this.index = index;
+            this.c = c;
+        }
+
+        public int compareTo(Node other) {
+            int cmp;
+            int a = this.suffix;
+            int b = other.suffix;
+            while (a+1 != this.suffix) {
+                if (a == length) a = 0;
+                if (b == length) b = 0;
+                Character sa = s.charAt(a);
+                Character sb = s.charAt(b);
+                cmp = sa.compareTo(sb);
+                if (cmp != 0) return cmp;
+                a++; b++;
+            }
+            return 0;
+            // String a = s.substring(this.suffix, length()) + s.substring(0, this.suffix);
+            // String b = s.substring(other.suffix, length()) + s.substring(0, other.suffix);
+            // return a.compareTo(b);
+        }
+    }
 
     // implementação "custom" do quick3string
     // alterações feitas para usar um vetor de Nodes, que contem o
@@ -61,46 +96,8 @@ public class CircularSuffixArray {
     }
 
     private boolean less(Node v, Node w, int d) {
-        int a = (v.suffix + d) % length;
-        int b = (w.suffix + d) % length;
-        for (; a+1 != v.suffix; a++, b++) {
-            if (a == length) a = 0;
-            if (b == length) b = 0;
-            if (s.charAt(a) < s.charAt(b)) return true;
-            else if (s.charAt(a) > s.charAt(b)) return false;
-        }
-        return false;
-    }
-
-    // usaremos essa no Quick3node para termos as strings em ordem
-    // alfabetica e mantendo a informação dos seus indices originais
-    public class Node {
-        public int index;
-        public int suffix;
-
-        public Node(int suffix, int index) {
-            this.suffix = suffix;
-            this.index = index;
-        }
-
-        public int compareTo(Node other) {
-            int cmp;
-            int a = this.suffix;
-            int b = other.suffix;
-            while (a+1 != this.suffix) {
-                if (a == length) a = 0;
-                if (b == length) b = 0;
-                Character sa = s.charAt(a);
-                Character sb = s.charAt(b);
-                cmp = sa.compareTo(sb);
-                if (cmp != 0) return cmp;
-                a++; b++;
-            }
-            return 0;
-            // String a = s.substring(this.suffix, length()) + s.substring(0, this.suffix);
-            // String b = s.substring(other.suffix, length()) + s.substring(0, other.suffix);
-            // return a.compareTo(b);
-        }
+        if (v.compareTo(w) < 0) return true;
+        else return false;
     }
 
     // circular suffix array of s
@@ -110,27 +107,22 @@ public class CircularSuffixArray {
 
         this.s = s;
         length = s.length();
-        StdOut.println("l: "+length);
 
-        Node[] array = new Node[length];
+        array = new Node[length];
 
         for (int i = 0; i < length; i++) {
-            array[i] = new Node(i, i);
+            array[i] = new Node(i, i, s.charAt((length - 1 + i)%length));
         }
 
         // let there be light
         Quick3node(array);
 
-        transform = "";
         index = new int[length];
         for (int i = 0; i < length; i++) {
             Node v = array[i];
             index[i] = v.index;
-            if (v.index == 0) first = v.index;
-            if (v.suffix != 0)
-                transform += s.charAt(v.suffix - 1);
-            else
-                transform += s.charAt(length - 1);
+            if (v.index == 0) this.first = i;
+            transform += v.c;
         }
     }
 
@@ -154,6 +146,12 @@ public class CircularSuffixArray {
     // fornece a string formada pelos ultimos chars de cada
     // string na ordem obtida após a ordenação feita acima
     public String transform() {
+        transform = "";
+        for (int i = 0; i < length; i++) {
+            Node v = array[i];
+            if (v.index == 0) this.first = i;
+            transform += v.c;
+        }
         return transform;
     }
 
