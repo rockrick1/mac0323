@@ -117,6 +117,8 @@ public class CircularSuffixArray {
         // let there be light
         Quick3node(array);
 
+        // monta o vetor index[] e a string transform
+        transform = "";
         index = new int[length];
         for (int i = 0; i < length; i++) {
             Node v = array[i];
@@ -146,12 +148,6 @@ public class CircularSuffixArray {
     // fornece a string formada pelos ultimos chars de cada
     // string na ordem obtida após a ordenação feita acima
     public String transform() {
-        transform = "";
-        for (int i = 0; i < length; i++) {
-            Node v = array[i];
-            if (v.index == 0) this.first = i;
-            transform += v.c;
-        }
         return transform;
     }
 
