@@ -1,11 +1,27 @@
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Picture;
-import edu.princeton.cs.algs4.MinPQ;
+import edu.princeton.cs.algs4.IndexMinPQ;
+import java.util.Comparator;
 import java.awt.Color;
 
 public class SeamCarver {
+    private int Infinite = 1250; // esse é o maior valor que a energia pode assumir
     private int width, height;
     private Picture pic;
+
+    // public class Pixel extends Comparable<Pixel> {
+    //     private int x, y;
+    //     public double energy;
+    //
+    //     public Pixel (int x, int y, double energy) {
+    //         this.x = x; this.y = y;
+    //         this.energy = energy;
+    //     }
+    //
+    //     public double compare(Pixel this, Pixel other) {
+    //         return other.energy - this.energy;
+    //     }
+    // }
 
     // create a seam carver object based on the given picture
     public SeamCarver(Picture picture) {
@@ -65,10 +81,63 @@ public class SeamCarver {
     }
 
     // sequence of indices for horizontal seam
-    // public int[] findHorizontalSeam()
-    //
-    // // sequence of indices for vertical seam
-    // public int[] findVerticalSeam()
+    public int[] findHorizontalSeam() {
+        int[] seam = new int[width];
+        double[][] distTo = new double[width][height];
+        double[][] energies = new double[width][height];
+        // Inicializa uma matriz com as energias de cada pixel.
+        // First será o indice x do qual começaremos, ou seja, a posição
+        // da borda superior com menor energia.
+        for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; y++) {
+                energies[x][y] = energy(x,y);
+                distTo[x][y] = Infinite;
+            }
+        int first = 0;
+        for (int y = 0; y < height; y++)
+            if (energies[0][y] < energies[0][first])
+                first = y;
+
+
+        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(width);
+
+        distTo[0][first] = 0;
+        pq.insert(first, distTo[0][first]);
+
+        for (int x = 1; !pq.isEmpty();) {
+            int y = pq.delMin();
+            StdOut.println("from:"+y);
+            for (int k = Math.max(y-1,0); k <= Math.min(height, y+1); k++) {
+                int from = y; int to = k;
+                StdOut.println("to:"+to);
+                double d = distTo[x-1][from] + energies[x][to];
+                StdOut.println("d:"+d);
+                StdOut.println("dist from:"+distTo[x-1][from]);
+                if (distTo[x][to] > d) {
+                    StdOut.println("entrei no if!");
+                    seam[x - 1] = to;
+                    StdOut.printf("seam %d = %d\n", x-1,to);
+                    distTo[x][to] = d;
+                    if (pq.contains(to)) {
+                        x--;
+                        pq.decreaseKey(to, d);
+                    }
+
+                    else {
+                        x++;
+                        pq.insert(to, d);
+                    }
+                }
+            //    StdOut.println("proximo x\n");
+            }
+        }
+        return seam;
+    }
+
+    // sequence of indices for vertical seam
+    // public int[] findVerticalSeam() {
+    //     int[] seam = new int[height];
+    // }
 
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
@@ -87,7 +156,7 @@ public class SeamCarver {
     public static void main(String[] args) {
         Picture pic = new Picture(args[0]);
         SeamCarver SC = new SeamCarver(pic);
-        Color cor = pic.get(2,0);
-        StdOut.println(cor.getGreen());
+        for (int i : SC.findHorizontalSeam())
+            StdOut.print(i+"-");
     }
 }
