@@ -1,11 +1,11 @@
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Picture;
 import edu.princeton.cs.algs4.IndexMinPQ;
+import edu.princeton.cs.algs4.Bag;
 import java.util.Comparator;
 import java.awt.Color;
 
 public class SeamCarver {
-    private int Infinite = 1250; // esse é o maior valor que a energia pode assumir
     private int width, height;
     private Picture pic;
 
@@ -77,60 +77,155 @@ public class SeamCarver {
 
     // energy of pixel at column x and row y
     public double energy(int x, int y) {
-        return Math.sqrt(gradX(x,y) + gradY(x,y));
+        return (gradX(x,y) + gradY(x,y));
+    }
+
+    private int getIdx(int x, int y) {
+        return ((y*width) + x);
+    }
+
+    private int getX(int idx) {
+        return idx % width;
+    }
+
+    private int getY(int idx) {
+        return idx / width;
+    }
+
+    private Iterable<Integer> adj(int idx) {
+        Bag<Integer> bag = new Bag<Integer>();
+        int x = getX(idx);
+        int y = getY(idx);
+        if (y + 1 < height) {
+            if (x - 1 >= 0)
+                bag.add(getIdx(x-1,y+1));
+            bag.add(getIdx(x,y+1));
+            if (x + 1 < width)
+                bag.add(getIdx(x+1,y+1));
+        }
+        return bag;
     }
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        int[] seam = new int[width];
-        double[][] distTo = new double[width][height];
-        double[][] energies = new double[width][height];
+        int[] seam = new int[height];
+        int[] edgeTo = new int[height*width];
+        double[] distTo = new double[width*height];
+        double[]  energies = new double[width*height];
         // Inicializa uma matriz com as energias de cada pixel.
         // First será o indice x do qual começaremos, ou seja, a posição
         // da borda superior com menor energia.
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++) {
-                energies[x][y] = energy(x,y);
-                distTo[x][y] = Infinite;
+                energies[getIdx(x,y)] = energy(x,y);
+                distTo[getIdx(x,y)] = -1;
             }
+
+
+        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(width*height);
         int first = 0;
-        for (int y = 0; y < height; y++)
-            if (energies[0][y] < energies[0][first])
-                first = y;
+        StdOut.println(width*height);
+        // insere a primeira linha inteira
+        for (int x = 0; x < width; x++)
+            pq.insert(x, energies[getIdx(x,0)]);
 
+        while (!pq.isEmpty()) {
+            int fromIdx = pq.delMin();
+            // StdOut.println("tirei um");
+            int fromX = getX(fromIdx);
+            int fromY = getY(fromIdx);
+            for (int toIdx : adj(fromIdx)) {
+                int toX = getX(toIdx);
+                int toY = getY(toIdx);
+                // StdOut.printf("to x: %d\n",toX);
+                double d = distTo[fromIdx] + energies[toIdx];
+                if (distTo[toIdx] > d || distTo[toIdx] == -1) {
+                    // StdOut.printf("from: %d to: %d\n",fromIdx, toIdx);
+                    if (fromY == 0) first = fromX;
+                    edgeTo[toIdx] = fromIdx;
+                    distTo[toIdx] = d;
 
-        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(width);
-
-        distTo[0][first] = 0;
-        pq.insert(first, distTo[0][first]);
-
-        for (int x = 1; !pq.isEmpty();) {
-            int y = pq.delMin();
-            StdOut.println("from:"+y);
-            for (int k = Math.max(y-1,0); k <= Math.min(height, y+1); k++) {
-                int from = y; int to = k;
-                StdOut.println("to:"+to);
-                double d = distTo[x-1][from] + energies[x][to];
-                StdOut.println("d:"+d);
-                StdOut.println("dist from:"+distTo[x-1][from]);
-                if (distTo[x][to] > d) {
-                    StdOut.println("entrei no if!");
-                    seam[x - 1] = to;
-                    StdOut.printf("seam %d = %d\n", x-1,to);
-                    distTo[x][to] = d;
-                    if (pq.contains(to)) {
-                        x--;
-                        pq.decreaseKey(to, d);
+                    if (pq.contains(toIdx)) {
+                        pq.decreaseKey(toIdx, d);
                     }
 
                     else {
-                        x++;
-                        pq.insert(to, d);
+                        pq.insert(toIdx, d);
                     }
                 }
             //    StdOut.println("proximo x\n");
             }
         }
+
+
+        //
+        // for (int x = 0; x < width; x++)
+        //     distTo[x][0] = energies[x][0];
+        // for (int y = 0; y < height - 1; y++) {
+        //     for (int x = 0; x < width; x++) {
+        //         for (int k = x-1; k <= x+1; k++) {
+        //             int xTo = getX(k);
+        //             double from = distTo[x][y];
+        //             double to = energies[xTo][y + 1];
+        //             double d = from + to;
+        //             StdOut.printf("y:%d, d: %.1f\n",y,d);
+        //             if (distTo[xTo][y + 1] > d || distTo[xTo][y + 1] == -1)
+        //                 distTo[xTo][y + 1] = d;
+        //         }
+        //         // for (int j = 0; j < height; j++) {
+        //         //     for (int i = 0; i < width; i++)
+        //         //     StdOut.printf("%.0f\t",distTo[i][j]);
+        //         //     StdOut.println();
+        //         // }
+        //         // StdOut.println();
+        //     }
+        // }
+        // for (int y = 0; y < height; y++) {
+        //     for (int x = 0; x < width; x++)
+        //     StdOut.printf("%.0f\t",energies[x][y]);
+        //     StdOut.println();
+        // }
+        // StdOut.println();
+        // for (int y = 0; y < height; y++) {
+        //     for (int x = 0; x < width; x++)
+        //         StdOut.printf("%.0f\t",distTo[x][y]);
+        //     StdOut.println();
+        // }
+        // int first = 0;
+        // for (int x = 0; x < width; x++)
+        //     if (distTo[x][0] < distTo[first][0])
+        //         first = x;
+        // StdOut.println(first);
+        // seam[0] = first;
+        // int x = first
+        // for (y = 1; y < height; y++) {
+        //     for (int k = x-1; k <= x+1; k++) {
+        //         int xTo = getX(k);
+        //
+        //
+        // }
+        for (int i : edgeTo)
+            StdOut.print(i+"-");
+        // StdOut.println(first);
+        int best = width*height - 1;
+        for (int i = width*height - 1; i > width*height - width; i--) {
+            int len = 0; int min = -1;
+            int x = getX(i), y = getY(i);
+            int pos = i;
+            while (x > 0) {
+                pos = edgeTo[i];
+                x = getX(pos);
+                // StdOut.println(x);
+                len++;
+            }
+            if (len < min || min == -1) {
+                min = len;
+                best = i;
+                StdOut.println("asdasd"+len);
+            }
+        }
+        for (int i : seam)
+            StdOut.print(i+"-");
         return seam;
     }
 
@@ -156,7 +251,7 @@ public class SeamCarver {
     public static void main(String[] args) {
         Picture pic = new Picture(args[0]);
         SeamCarver SC = new SeamCarver(pic);
-        for (int i : SC.findHorizontalSeam())
-            StdOut.print(i+"-");
+        SC.findHorizontalSeam();
+        StdOut.println();
     }
 }
