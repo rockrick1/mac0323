@@ -9,27 +9,15 @@ import java.awt.Color;
 
 public class SeamCarver {
     private int width, height;
+    private int wh;
     private Picture pic;
-
-    // public class Pixel extends Comparable<Pixel> {
-    //     private int x, y;
-    //     public double energy;
-    //
-    //     public Pixel (int x, int y, double energy) {
-    //         this.x = x; this.y = y;
-    //         this.energy = energy;
-    //     }
-    //
-    //     public double compare(Pixel this, Pixel other) {
-    //         return other.energy - this.energy;
-    //     }
-    // }
 
     // create a seam carver object based on the given picture
     public SeamCarver(Picture picture) {
         this.pic = picture;
         this.width = pic.width();
         this.height = pic.height();
+        this.wh = width * height;
     }
 
     // current picture
@@ -79,21 +67,24 @@ public class SeamCarver {
 
     // energy of pixel at column x and row y
     public double energy(int x, int y) {
+        if (x < 0 || y < 0 || x >= width || y >= height)
+            throw new java.lang.IllegalArgumentException();
         return Math.sqrt(gradX(x,y) + gradY(x,y));
     }
 
+    // funções auxiliares para pegar o indice da matriz na forma de vetor
+    // e de volta também
     private int getIdx(int x, int y) {
         return ((y*width) + x);
     }
-
     private int getX(int idx) {
         return idx % width;
     }
-
     private int getY(int idx) {
         return idx / width;
     }
 
+    // posições da matriz 'adjacentes' à posição representada por idx
     private Iterable<Integer> adj(int idx) {
         Bag<Integer> bag = new Bag<Integer>();
         int x = getX(idx);
@@ -108,168 +99,152 @@ public class SeamCarver {
         return bag;
     }
 
+    // transpoe a matriz e altera os valores devidamente
+    private Picture transpose(Picture picture) {
+        Picture ret = new Picture(height, width);
+
+        for (int col = 0; col < height; col++) {
+            for (int row = 0; row < width; row++) {
+                int rgb = picture.getRGB(row,col);
+                ret.setRGB(col, row, rgb);
+            }
+        }
+        // inverte w e h
+        int temp = height;
+        height = width;
+        width = temp;
+        return ret;
+    }
+
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
+        // apenas transpoe a imagem e faz o vertical
+        pic = transpose(pic);
+
+        int[] seam = findVerticalSeam();
+
+        // transpoe de volta depois, claro
+        pic = transpose(pic);
+        return seam;
+    }
+
+    // sequence of indices for vertical seam
+    public int[] findVerticalSeam() {
         int[] seam = new int[height];
-        int[] edgeTo = new int[height*width];
-        double[] distTo = new double[width*height];
-        double[]  energies = new double[width*height];
+        // usaremos vetores ao inves de matrizes, pois assim com os indices
+        // temos a informação tanto do x quanto do y da posição, com as
+        // funções auxiliares acima (getIdx, getX e getY)
+        int[] edgeTo = new int[wh];
+        double[] distTo = new double[wh];
+        double[]  energies = new double[wh];
 
         // Inicializa uma matriz com as energias de cada pixel.
         // First será o indice x do qual começaremos, ou seja, a posição
         // da borda superior com menor energia.
-        StdOut.println(width +" "+ height);
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 energies[getIdx(x,y)] = energy(x,y);
                 distTo[getIdx(x,y)] = -1;
             }
         }
-        // for (int i = 0; i < width*height; i++) {
-        //     StdOut.printf("%.0f\t",energies[i]);
-        //     if (i%(width - 1) == 0 && i != 0)
-        //         StdOut.print("\n");
-        //
-        // }
 
+        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(wh);
 
-        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(width*height);
-
-        int first = 0;
-        StdOut.println(width*height);
-        // insere a primeira linha inteira
+        // insere a primeira linha inteira; o pai da primeira linha é
+        // um unico nó implicito, representado por -1
+        // Queremos achar o melhor caminho desse nó (-1) até a ultima linha
         for (int x = 0; x < width; x++) {
-            pq.insert(x, energies[getIdx(x,0)]);
-            edgeTo[getIdx(x,0)] = -1;
+            pq.insert(x, energies[x]);
+            edgeTo[x] = -1;
+            distTo[x] = energies[x];
         }
 
+        // algoritmo de Dijkstra
         while (!pq.isEmpty()) {
             int fromIdx = pq.delMin();
-            // StdOut.println("tirei um");
-            int fromX = getX(fromIdx);
-            int fromY = getY(fromIdx);
             for (int toIdx : adj(fromIdx)) {
-                int toX = getX(toIdx);
-                int toY = getY(toIdx);
-                // StdOut.printf("to x: %d\n",toX);
                 double d = distTo[fromIdx] + energies[toIdx];
                 if (distTo[toIdx] > d || distTo[toIdx] == -1) {
-                    // StdOut.printf("from: %d to: %d\n",fromIdx, toIdx);
-                    if (fromY == 0) first = fromX;
                     edgeTo[toIdx] = fromIdx;
                     distTo[toIdx] = d;
 
-                    if (pq.contains(toIdx)) {
+                    if (pq.contains(toIdx))
                         pq.decreaseKey(toIdx, d);
-                    }
-
-                    else {
+                    else
                         pq.insert(toIdx, d);
-                    }
                 }
             }
         }
 
-
-        // for (int x = 0; x < width; x++)
-        //     distTo[x][0] = energies[x][0];
-        // for (int y = 0; y < height - 1; y++) {
-        //     for (int x = 0; x < width; x++) {
-        //         for (int k = x-1; k <= x+1; k++) {
-        //             int xTo = getX(k);
-        //             double from = distTo[x][y];
-        //             double to = energies[xTo][y + 1];
-        //             double d = from + to;
-        //             StdOut.printf("y:%d, d: %.1f\n",y,d);
-        //             if (distTo[xTo][y + 1] > d || distTo[xTo][y + 1] == -1)
-        //                 distTo[xTo][y + 1] = d;
-        //         }
-        //         // for (int j = 0; j < height; j++) {
-        //         //     for (int i = 0; i < width; i++)
-        //         //     StdOut.printf("%.0f\t",distTo[i][j]);
-        //         //     StdOut.println();
-        //         // }
-        //         // StdOut.println();
-        //     }
-        // }
-        // for (int y = 0; y < height; y++) {
-        //     for (int x = 0; x < width; x++)
-        //     StdOut.printf("%.0f\t",energies[x][y]);
-        //     StdOut.println();
-        // }
-        // StdOut.println();
-        // for (int y = 0; y < height; y++) {
-        //     for (int x = 0; x < width; x++)
-        //         StdOut.printf("%.0f\t",distTo[x][y]);
-        //     StdOut.println();
-        // }
-        // int first = 0;
-        // for (int x = 0; x < width; x++)
-        //     if (distTo[x][0] < distTo[first][0])
-        //         first = x;
-        // StdOut.println(first);
-        // seam[0] = first;
-        // int x = first
-        // for (y = 1; y < height; y++) {
-        //     for (int k = x-1; k <= x+1; k++) {
-        //         int xTo = getX(k);
-        //
-        //
-        // }
-
-        StdOut.print("edgeTo:\n");
-        for (int i : edgeTo)
-            StdOut.print(i+" ");
-        StdOut.println();
-        // StdOut.println(first);
-        int best = width*height - 1;
+        int best = wh - 1;
         double min = -1;
 
+        // nessa fila teremos o caminho final
         Queue<Integer> path = new Queue<Integer>();
-        for (int i = width*height - 1; i > width*height - width; i--) {
-            StdOut.printf("%.1f\n", energies[i]);
-            int x = getX(i), y = getY(i);
-
+        // percorre todos os pixels da ultima linha, procurando um caminho até
+        // os com distTo = -1
+        for (int i = wh - 1; i > wh - width - 1; i--) {
+            // pra cada iteração, grava o caminho e a soma das energias
             Stack<Integer> stack = new Stack<Integer>();
             double sum = 0;
-            StdOut.println("\n"+getX(i));
             for (int pos = i; pos != -1; pos = edgeTo[pos]) {
                 stack.push(pos);
                 sum += energies[pos];
-                StdOut.print(getX(pos) + " ");
             }
-            StdOut.println();
 
+            // compara com o melhor até agora pra ver se substitui
             if (sum < min || min == -1) {
-                StdOut.println("vo fazer denovo");
+                // substitui, entao cria um novo path e insere tudo
                 path = new Queue<Integer>();
                 for (int p : stack)
                     path.enqueue(p);
                 min = sum;
                 best = i;
-                StdOut.println("melhor foi "+getX(best));
             }
         }
-        for (int i : path)
-            StdOut.print(getX(i)+"-");
+        // monta o vetor seam com os valores convertidos de path
+        int size = path.size();
+        for (int i = 0; i < size; i++)
+            seam[i] = getX(path.dequeue());
+
         return seam;
     }
-
-    // sequence of indices for vertical seam
-    // public int[] findVerticalSeam() {
-    //     int[] seam = new int[height];
-    // }
 
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
         if (seam == null || height == 1 || seam.length != width)
             throw new java.lang.IllegalArgumentException();
+
+        // transpoe a imagem e faz o vertical
+        pic = transpose(pic);
+
+        removeVerticalSeam(seam);
+
+        pic = transpose(pic);
     }
 
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
         if (seam == null || width == 1 || seam.length != height)
             throw new java.lang.IllegalArgumentException();
+
+        // cria uma nova imagem, com width - 1 de largura
+        // e insere todos os pixels menos os inclusos em seam[]
+        Picture removed = new Picture(width - 1, height);
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width - 1; col++) {
+                if (col >= seam[row]) {
+                    int rgb = pic.getRGB(col+1, row);
+                    removed.setRGB(col, row, rgb);
+                }
+                else {
+                    int rgb = pic.getRGB(col, row);
+                    removed.setRGB(col, row, rgb);
+                }
+            }
+        }
+        width--;
+        this.pic = removed;
     }
 
 
@@ -278,6 +253,6 @@ public class SeamCarver {
         Picture pic = new Picture(args[0]);
         SeamCarver SC = new SeamCarver(pic);
         SC.findHorizontalSeam();
-        StdOut.println();
+        StdOut.println("im a blind cave salamander");
     }
 }
