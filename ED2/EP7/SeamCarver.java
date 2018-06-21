@@ -1,6 +1,8 @@
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Picture;
 import edu.princeton.cs.algs4.IndexMinPQ;
+import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.Bag;
 import java.util.Comparator;
 import java.awt.Color;
@@ -77,7 +79,7 @@ public class SeamCarver {
 
     // energy of pixel at column x and row y
     public double energy(int x, int y) {
-        return (gradX(x,y) + gradY(x,y));
+        return Math.sqrt(gradX(x,y) + gradY(x,y));
     }
 
     private int getIdx(int x, int y) {
@@ -112,22 +114,34 @@ public class SeamCarver {
         int[] edgeTo = new int[height*width];
         double[] distTo = new double[width*height];
         double[]  energies = new double[width*height];
+
         // Inicializa uma matriz com as energias de cada pixel.
         // First será o indice x do qual começaremos, ou seja, a posição
         // da borda superior com menor energia.
-        for (int x = 0; x < width; x++)
+        StdOut.println(width +" "+ height);
+        for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 energies[getIdx(x,y)] = energy(x,y);
                 distTo[getIdx(x,y)] = -1;
             }
+        }
+        // for (int i = 0; i < width*height; i++) {
+        //     StdOut.printf("%.0f\t",energies[i]);
+        //     if (i%(width - 1) == 0 && i != 0)
+        //         StdOut.print("\n");
+        //
+        // }
 
 
         IndexMinPQ<Double> pq = new IndexMinPQ<Double>(width*height);
+
         int first = 0;
         StdOut.println(width*height);
         // insere a primeira linha inteira
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < width; x++) {
             pq.insert(x, energies[getIdx(x,0)]);
+            edgeTo[getIdx(x,0)] = -1;
+        }
 
         while (!pq.isEmpty()) {
             int fromIdx = pq.delMin();
@@ -153,12 +167,10 @@ public class SeamCarver {
                         pq.insert(toIdx, d);
                     }
                 }
-            //    StdOut.println("proximo x\n");
             }
         }
 
 
-        //
         // for (int x = 0; x < width; x++)
         //     distTo[x][0] = energies[x][0];
         // for (int y = 0; y < height - 1; y++) {
@@ -204,28 +216,42 @@ public class SeamCarver {
         //
         //
         // }
+
+        StdOut.print("edgeTo:\n");
         for (int i : edgeTo)
-            StdOut.print(i+"-");
+            StdOut.print(i+" ");
+        StdOut.println();
         // StdOut.println(first);
         int best = width*height - 1;
+        double min = -1;
+
+        Queue<Integer> path = new Queue<Integer>();
         for (int i = width*height - 1; i > width*height - width; i--) {
-            int len = 0; int min = -1;
+            StdOut.printf("%.1f\n", energies[i]);
             int x = getX(i), y = getY(i);
-            int pos = i;
-            while (x > 0) {
-                pos = edgeTo[i];
-                x = getX(pos);
-                // StdOut.println(x);
-                len++;
+
+            Stack<Integer> stack = new Stack<Integer>();
+            double sum = 0;
+            StdOut.println("\n"+getX(i));
+            for (int pos = i; pos != -1; pos = edgeTo[pos]) {
+                stack.push(pos);
+                sum += energies[pos];
+                StdOut.print(getX(pos) + " ");
             }
-            if (len < min || min == -1) {
-                min = len;
+            StdOut.println();
+
+            if (sum < min || min == -1) {
+                StdOut.println("vo fazer denovo");
+                path = new Queue<Integer>();
+                for (int p : stack)
+                    path.enqueue(p);
+                min = sum;
                 best = i;
-                StdOut.println("asdasd"+len);
+                StdOut.println("melhor foi "+getX(best));
             }
         }
-        for (int i : seam)
-            StdOut.print(i+"-");
+        for (int i : path)
+            StdOut.print(getX(i)+"-");
         return seam;
     }
 
